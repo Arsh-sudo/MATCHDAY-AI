@@ -28,35 +28,65 @@ fun DashboardScreen(viewModel: MainViewModel) {
     val state by viewModel.dashboardState.collectAsStateWithLifecycle()
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp)
+        contentPadding = PaddingValues(top = 0.dp, bottom = 120.dp)
     ) {
-        // Match Header Header
+        // Stadium Hero Image & Match Header
         item {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                Text("FIFA WORLD CUP 2026™", color = TextSecondary, fontSize = 12.sp, letterSpacing = 1.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                    Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
-                        Text("🇲🇽", fontSize = 24.sp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp)
+            ) {
+                // Background Image
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.stadium_hero_1783434489967),
+                    contentDescription = "Stadium",
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                // Bottom Gradient Fade
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Transparent, BgMain),
+                                startY = 0f,
+                                endY = Float.POSITIVE_INFINITY
+                            )
+                        )
+                )
+
+                // Match Header Overlaid
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally, 
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text("FIFA WORLD CUP 2026™", color = TextSecondary, fontSize = 12.sp, letterSpacing = 1.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                        Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+                            Text("🇲🇽", fontSize = 24.sp)
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text("MEXICO", color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(" vs ", color = TextSecondary, fontSize = 16.sp)
+                        Text("BRAZIL", color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+                            Text("🇧🇷", fontSize = 24.sp)
+                        }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text("MEXICO", color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Text(" vs ", color = TextSecondary, fontSize = 16.sp)
-                    Text("BRAZIL", color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
-                        Text("🇧🇷", fontSize = 24.sp)
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("72'", color = ColorSafe, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("72'", color = ColorSafe, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
             }
-            Spacer(modifier = Modifier.height(24.dp))
         }
 
         // AI Stadium Score
@@ -65,7 +95,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
                 color = Color(0xFF1E293B).copy(alpha = 0.85f),
                 border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                 shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
             ) {
                 Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
@@ -92,7 +122,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
 
         // Stats Row
         item {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatCard(
                     title = "ATTENDANCE",
                     icon = Icons.Default.Group,
@@ -130,7 +160,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
                 color = Color(0xFF1E293B).copy(alpha = 0.85f),
                 border = androidx.compose.foundation.BorderStroke(1.dp, ColorCritical.copy(alpha = 0.3f)),
                 shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
             ) {
                 Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(ColorCriticalDark.copy(alpha = 0.5f), Color.Transparent), radius = 500f))) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -155,7 +185,7 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
         color = Color(0xFF1E293B).copy(alpha = 0.85f),
         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.height(130.dp)
+        modifier = modifier.height(110.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceBetween) {
             Text(title, color = TextSecondary, fontSize = 10.sp, letterSpacing = 0.5.sp)

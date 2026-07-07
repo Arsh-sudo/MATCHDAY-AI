@@ -53,26 +53,33 @@ fun MapScreen(viewModel: MainViewModel) {
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp)
+            ) {
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.stadium_top_down_1783435115330),
+                    contentDescription = "Stadium Map",
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                // Vignette effect to blend image into background
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(Color.Transparent, BgMain),
+                                radius = 600f
+                            )
+                        )
+                )
+            }
+            
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val center = Offset(size.width / 2, size.height / 2)
-                
-                // Outer Stadium Ring
-                drawRoundRect(
-                    color = Color(0xFF1E293B),
-                    topLeft = Offset(center.x - 140.dp.toPx(), center.y - 200.dp.toPx()),
-                    size = Size(280.dp.toPx(), 400.dp.toPx()),
-                    cornerRadius = CornerRadius(140.dp.toPx(), 140.dp.toPx()),
-                    style = Stroke(width = 20.dp.toPx())
-                )
-                
-                // Inner Pitch
-                drawRoundRect(
-                    color = ColorSafeDark.copy(alpha = 0.5f),
-                    topLeft = Offset(center.x - 60.dp.toPx(), center.y - 100.dp.toPx()),
-                    size = Size(120.dp.toPx(), 200.dp.toPx()),
-                    cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
-                    style = Stroke(width = 2.dp.toPx())
-                )
                 
                 // Draw connecting lines and gates
                 val gates = listOf(
