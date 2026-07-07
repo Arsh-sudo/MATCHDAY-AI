@@ -1,13 +1,18 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,237 +20,177 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.gemini.GeminiApi
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
-import kotlinx.coroutines.launch
-
-data class StadiumZone(val id: String, val name: String, val density: Float)
 
 @Composable
 fun MapScreen(viewModel: MainViewModel) {
-    val coroutineScope = rememberCoroutineScope()
-    var selectedZone by remember { mutableStateOf<StadiumZone?>(null) }
-    var zoneAnalysis by remember { mutableStateOf<String?>(null) }
-    var isAnalyzing by remember { mutableStateOf(false) }
-
-    val state by viewModel.dashboardState.collectAsStateWithLifecycle()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .drawBehind {
-                val gridSize = 40.dp.toPx()
-                val width = size.width
-                val height = size.height
-                val gridColor = ColorAiBlue.copy(alpha = 0.05f)
-                for (x in 0..width.toInt() step gridSize.toInt()) {
-                    drawLine(gridColor, Offset(x.toFloat(), 0f), Offset(x.toFloat(), height), strokeWidth = 1f)
-                }
-                for (y in 0..height.toInt() step gridSize.toInt()) {
-                    drawLine(gridColor, Offset(0f, y.toFloat()), Offset(width, y.toFloat()), strokeWidth = 1f)
-                }
-            }
-            .padding(24.dp),
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 120.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Digital Twin", style = MaterialTheme.typography.titleMedium, color = TextSecondary)
+        Text("STADIUM DIGITAL TWIN", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+        Text("Live Operational View", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+        
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Stadium Map
-        StadiumMapLayout(state.gate7Density / 100f, selectedZone) { zone ->
-            selectedZone = zone
-            isAnalyzing = true
-            zoneAnalysis = null
-            coroutineScope.launch {
-                val prompt = "Provide a 2-sentence real-time crowd analysis and operational recommendation for the ${zone.name} zone at a FIFA World Cup stadium. Current density is ${(zone.density * 100).toInt()}%."
-                val response = GeminiApi.generateContent(prompt)
-                zoneAnalysis = response
-                isAnalyzing = false
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        if (selectedZone != null) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = GlassBg,
-                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.AutoAwesome, contentDescription = "AI", tint = ColorAiPurple)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(selectedZone!!.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge, color = TextPrimary)
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column {
-                            Text("Density", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                            Text("${(selectedZone!!.density * 100).toInt()}%", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = if(selectedZone!!.density > 0.8f) ColorCritical else ColorSafe)
-                        }
-                        Column {
-                            Text("Med Requests", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                            Text("0", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimary)
-                        }
-                        Column {
-                            Text("Est. Exit", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                            Text(if(selectedZone!!.density > 0.8f) "14 min" else "4 min", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimary)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    if (isAnalyzing) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = ColorAiPurple)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Analyzing zone metrics...", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    } else {
-                        Text("AI Insight", color = ColorAiBlue, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(zoneAnalysis ?: "Could not fetch analysis.", style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
-                    }
-                }
-            }
-        } else {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = GlassBg,
-                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                shape = RoundedCornerShape(20.dp)
-            ) {
-                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Tap a stadium sector to view live telemetry and AI insights.", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, textAlign = TextAlign.Center)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun StadiumMapLayout(gate7Density: Float, selectedZone: StadiumZone?, onZoneClick: (StadiumZone) -> Unit) {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.98f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "pulse_scale"
-    )
-
-    val zones = listOf(
-        StadiumZone("NORTH", "North Stand", 0.4f),
-        StadiumZone("WEST", "West Stand", 0.6f),
-        StadiumZone("EAST", "East Stand", 0.5f),
-        StadiumZone("SOUTH", "Gate 7 (South)", gate7Density)
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(0.9f)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Pitch
+        // Stadium Visual
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.5f)
-                .fillMaxHeight(0.7f)
-                .background(ColorSafe.copy(alpha = 0.05f), RoundedCornerShape(24.dp))
-                .drawBehind {
-                    drawRoundRect(
-                        color = ColorSafe.copy(alpha = 0.2f),
-                        size = size,
-                        cornerRadius = CornerRadius(24.dp.toPx()),
-                        style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(15f, 15f), 0f))
-                    )
-                },
+                .fillMaxWidth()
+                .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .drawBehind {
-                        drawCircle(
-                            color = ColorSafe.copy(alpha = 0.2f),
-                            radius = size.width / 2,
-                            style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
-                        )
-                    }
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .drawBehind {
-                        drawLine(
-                            color = ColorSafe.copy(alpha = 0.2f),
-                            start = Offset(0f, 0f),
-                            end = Offset(size.width, 0f),
-                            strokeWidth = 1.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                        )
-                    }
-            )
-            Text("PITCH", color = ColorSafe.copy(alpha = 0.3f), fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val center = Offset(size.width / 2, size.height / 2)
+                
+                // Outer Stadium Ring
+                drawRoundRect(
+                    color = Color(0xFF1E293B),
+                    topLeft = Offset(center.x - 140.dp.toPx(), center.y - 200.dp.toPx()),
+                    size = Size(280.dp.toPx(), 400.dp.toPx()),
+                    cornerRadius = CornerRadius(140.dp.toPx(), 140.dp.toPx()),
+                    style = Stroke(width = 20.dp.toPx())
+                )
+                
+                // Inner Pitch
+                drawRoundRect(
+                    color = ColorSafeDark.copy(alpha = 0.5f),
+                    topLeft = Offset(center.x - 60.dp.toPx(), center.y - 100.dp.toPx()),
+                    size = Size(120.dp.toPx(), 200.dp.toPx()),
+                    cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx()),
+                    style = Stroke(width = 2.dp.toPx())
+                )
+                
+                // Draw connecting lines and gates
+                val gates = listOf(
+                    Pair(Offset(center.x, center.y - 200.dp.toPx()), ColorAiPurple), // Gate 1
+                    Pair(Offset(center.x + 100.dp.toPx(), center.y - 140.dp.toPx()), ColorAiBlue), // Gate 2
+                    Pair(Offset(center.x + 140.dp.toPx(), center.y), ColorAttention), // Gate 3
+                    Pair(Offset(center.x, center.y + 200.dp.toPx()), ColorAiPurple), // Gate 4
+                    Pair(Offset(center.x - 140.dp.toPx(), center.y - 140.dp.toPx()), ColorSafe), // Gate 5
+                    Pair(Offset(center.x - 100.dp.toPx(), center.y + 140.dp.toPx()), ColorAttention), // Gate 6
+                    Pair(Offset(center.x - 70.dp.toPx(), center.y - 200.dp.toPx()), ColorCritical), // Gate 7 (Surge)
+                )
+                
+                gates.forEachIndexed { index, pair ->
+                    val pos = pair.first
+                    val col = pair.second
+                    // Line to center
+                    drawLine(col.copy(alpha = 0.3f), start = pos, end = center, strokeWidth = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
+                    // Glow node
+                    drawCircle(col.copy(alpha = 0.2f), radius = 20.dp.toPx(), center = pos)
+                    drawCircle(col, radius = 6.dp.toPx(), center = pos)
+                }
+            }
+            
+            // Overlays for Gate Labels
+            GateLabel("GATE 1", Modifier.align(Alignment.TopCenter).offset(y = (-40).dp), ColorAiPurple)
+            GateLabel("GATE 7", Modifier.align(Alignment.TopStart).offset(x = 60.dp, y = (-20).dp), ColorCritical)
+            GateLabel("GATE 5", Modifier.align(Alignment.CenterStart).offset(x = (-10).dp, y = (-100).dp), ColorSafe)
+            GateLabel("GATE 6", Modifier.align(Alignment.BottomStart).offset(x = 30.dp, y = (-20).dp), ColorAttention)
+            GateLabel("GATE 4", Modifier.align(Alignment.BottomCenter).offset(y = (-40).dp), ColorAiPurple)
+            GateLabel("GATE 3", Modifier.align(Alignment.CenterEnd).offset(x = 10.dp), ColorAttention)
+            GateLabel("GATE 2", Modifier.align(Alignment.TopEnd).offset(x = (-30).dp, y = (-20).dp), ColorAiBlue)
         }
 
-        // North Stand
-        StadiumZoneBox(zones[0], Modifier.align(Alignment.TopCenter).fillMaxWidth(0.7f).height(60.dp), zones[0] == selectedZone, onZoneClick)
-        
-        // South Stand
-        StadiumZoneBox(zones[3], Modifier.align(Alignment.BottomCenter).fillMaxWidth(0.7f).height(60.dp), zones[3] == selectedZone, onZoneClick, scale = if (gate7Density > 0.8f) pulseScale else 1f)
-        
-        // West Stand
-        StadiumZoneBox(zones[1], Modifier.align(Alignment.CenterStart).fillMaxHeight(0.7f).width(60.dp), zones[1] == selectedZone, onZoneClick)
-        
-        // East Stand
-        StadiumZoneBox(zones[2], Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.7f).width(60.dp), zones[2] == selectedZone, onZoneClick)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Legend
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Text("LOW", color = TextSecondary, fontSize = 12.sp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(modifier = Modifier.width(150.dp).height(4.dp).background(Brush.horizontalGradient(listOf(ColorSafe, ColorAttention, ColorCritical)), RoundedCornerShape(2.dp)))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("HIGH", color = TextSecondary, fontSize = 12.sp)
+        }
+        Text("Tap on a gate to view live insights", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Selected Gate Info (Gate 7)
+        Surface(
+            color = Color(0xFF1E293B).copy(alpha = 0.85f),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("GATE 7", style = MaterialTheme.typography.titleLarge, color = TextPrimary, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(Icons.Default.Warning, contentDescription = null, tint = ColorCritical, modifier = Modifier.size(16.dp))
+                        }
+                        Text("HIGH CONGESTION", color = ColorCritical, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = TextSecondary)
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Expected peak in 6 mins", color = TextPrimary, fontSize = 14.sp)
+                        Text("Confidence 96%", color = TextSecondary, fontSize = 12.sp)
+                    }
+                    
+                    // Sparkline
+                    Box(modifier = Modifier.width(80.dp).height(30.dp)) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val path = Path()
+                            path.moveTo(0f, size.height)
+                            path.quadraticBezierTo(size.width * 0.25f, size.height, size.width * 0.5f, size.height * 0.5f)
+                            path.quadraticBezierTo(size.width * 0.75f, 0f, size.width, 0f)
+                            drawPath(path, ColorCritical, style = Stroke(width = 2.dp.toPx()))
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    GateStatItem(Icons.Default.Group, "People", "4,782")
+                    GateStatItem(Icons.Default.AccessTime, "Wait Time", "18 min")
+                    GateStatItem(Icons.Default.Person, "Volunteers", "3")
+                    GateStatItem(Icons.Default.MeetingRoom, "Exits Open", "2/4")
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun StadiumZoneBox(zone: StadiumZone, modifier: Modifier, isSelected: Boolean, onClick: (StadiumZone) -> Unit, scale: Float = 1f) {
-    val color = when {
-        zone.density > 0.8f -> ColorCritical
-        zone.density > 0.6f -> ColorAttention
-        else -> ColorSafe
-    }
-    
-    val isHighlighted = scale > 1f || isSelected
-    
-    Box(
+fun GateLabel(text: String, modifier: Modifier, color: Color) {
+    Surface(
+        color = Color(0xFF0F172A).copy(alpha = 0.8f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(12.dp),
         modifier = modifier
-            .background(color.copy(alpha = if(isSelected) 0.25f else 0.15f * scale), RoundedCornerShape(16.dp))
-            .then(
-                if (isHighlighted) {
-                    Modifier.drawBehind {
-                        drawRoundRect(
-                            color = color.copy(alpha = 0.4f),
-                            size = size,
-                            cornerRadius = CornerRadius(16.dp.toPx())
-                        )
-                    }
-                } else Modifier
-            )
-            .border(1.dp, color.copy(alpha = if(isSelected) 0.6f else 0.3f), RoundedCornerShape(16.dp))
-            .clickable { onClick(zone) },
-        contentAlignment = Alignment.Center
     ) {
-        Text(zone.id, color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)
+        Text(text, color = TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+    }
+}
+
+@Composable
+fun GateStatItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(icon, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(label, color = TextSecondary, fontSize = 10.sp)
+        Text(value, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }

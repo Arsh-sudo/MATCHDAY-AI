@@ -8,15 +8,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.Stadium
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -34,261 +31,148 @@ fun DashboardScreen(viewModel: MainViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(top = 8.dp, bottom = 120.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp)
     ) {
-        // AI Monitoring Bars
+        // Match Header Header
         item {
-            AiMonitoringBar()
-            Spacer(modifier = Modifier.height(4.dp))
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                Text("FIFA WORLD CUP 2026™", color = TextSecondary, fontSize = 12.sp, letterSpacing = 1.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                    Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+                        Text("🇲🇽", fontSize = 24.sp)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text("MEXICO", color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(" vs ", color = TextSecondary, fontSize = 16.sp)
+                    Text("BRAZIL", color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+                        Text("🇧🇷", fontSize = 24.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("72'", color = ColorSafe, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
+            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // KPI Row
+        // AI Stadium Score
+        item {
+            Surface(
+                color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text("AI STADIUM SCORE", color = ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text("98", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                            Text("/100", color = TextSecondary, fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                        Text("Everything operating smoothly", color = TextSecondary, fontSize = 12.sp)
+                    }
+                    // Mini graph
+                    Box(modifier = Modifier.width(80.dp).height(40.dp)) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val path = Path()
+                            path.moveTo(0f, size.height * 0.8f)
+                            path.quadraticBezierTo(size.width * 0.25f, size.height, size.width * 0.5f, size.height * 0.4f)
+                            path.quadraticBezierTo(size.width * 0.75f, 0f, size.width, size.height * 0.2f)
+                            drawPath(path, ColorSafe, style = Stroke(width = 2.dp.toPx()))
+                        }
+                    }
+                }
+            }
+        }
+
+        // Stats Row
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                KpiBox("Attendance", "58225", Modifier.weight(1f))
-                KpiBox("Incidents", "1", Modifier.weight(1f))
-                AiScoreBox(99, Modifier.weight(1.2f))
-            }
-        }
-
-        // Emergency Wow Feature
-        item {
-            EmergencyAlertCard(6, onDeploy = { viewModel.resolveEmergency() })
-        }
-
-        // Crowd Density with Circular Ring
-        item {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                DashboardMetricCard(
-                    title = "Crowd Density",
+                StatCard(
+                    title = "ATTENDANCE",
+                    icon = Icons.Default.Group,
+                    iconColor = ColorAiBlue,
+                    value = "58,225",
+                    subValue = "+4.3%",
+                    subValueColor = ColorSafe,
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    title = "CROWD DENSITY",
+                    icon = null,
+                    iconColor = ColorSafe,
                     value = "80%",
-                    trend = "Trending Up +6%",
-                    progress = 0.80f,
-                    status = "NORMAL",
-                    statusColor = ColorSafe,
-                    glowColor = ColorSafeDark,
+                    subValue = "NORMAL",
+                    subValueColor = ColorSafe,
+                    isCircular = true,
                     modifier = Modifier.weight(1f)
                 )
-                DashboardMetricCard(
-                    title = "Parking Fill",
-                    value = "76%",
-                    trend = "+2%",
-                    progress = 0.76f,
-                    status = "FILLING (76%)",
-                    statusColor = ColorAttention,
-                    glowColor = ColorAttentionDark,
+                StatCard(
+                    title = "INCIDENTS",
+                    icon = Icons.Default.Warning,
+                    iconColor = ColorCritical,
+                    value = "1",
+                    subValue = "ACTIVE",
+                    subValueColor = ColorCritical,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
-    }
-}
 
-@Composable
-fun AiMonitoringBar() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Live Stadium Insights", style = MaterialTheme.typography.titleLarge, color = TextPrimary, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            MonitoringPill("Crowd", 1f, true)
-            MonitoringPill("Transport", 0.3f, false)
-            MonitoringPill("Security", 0.3f, false)
-            MonitoringPill("Weather", 0.6f, false)
-        }
-    }
-}
-
-@Composable
-fun MonitoringPill(label: String, fill: Float, isHighlighted: Boolean) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(70.dp)) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp)
-                .background(GlassBg, RoundedCornerShape(2.dp))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(if(isHighlighted) 1f else fill)
-                    .background(if (isHighlighted) ColorAiBlue else GlassBorder, RoundedCornerShape(2.dp))
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(label, fontSize = 12.sp, color = if(isHighlighted) TextPrimary else TextSecondary)
-    }
-}
-
-@Composable
-fun KpiBox(title: String, value: String, modifier: Modifier = Modifier) {
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.6f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(16.dp),
-        modifier = modifier
-    ) {
-        Column(modifier = Modifier.padding(vertical = 16.dp).height(64.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(title, style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextPrimary)
-        }
-    }
-}
-
-@Composable
-fun AiScoreBox(score: Int, modifier: Modifier = Modifier) {
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.6f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(16.dp),
-        modifier = modifier
-    ) {
-        Column(modifier = Modifier.padding(vertical = 16.dp).height(64.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text("AI Score", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth().height(40.dp)) {
-                Canvas(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-                    val strokeWidth = 8.dp.toPx()
-                    val diameter = size.width
-                    drawArc(
-                        brush = Brush.horizontalGradient(listOf(ColorSafe, ColorSafe, ColorAttention)),
-                        startAngle = 180f,
-                        sweepAngle = 180f,
-                        useCenter = false,
-                        topLeft = Offset(0f, 0f),
-                        size = Size(diameter, diameter),
-                        style = Stroke(width = strokeWidth, cap = androidx.compose.ui.graphics.StrokeCap.Round)
-                    )
-                }
-                Text("$score%", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextPrimary, modifier = Modifier.align(Alignment.BottomCenter).offset(y = 4.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun DashboardMetricCard(title: String, value: String, trend: String, progress: Float, status: String, statusColor: Color, glowColor: Color, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.height(140.dp)) {
-        // Outer Glow effect
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(glowColor.copy(alpha = 0.5f), Color.Transparent),
-                        radius = 300f
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                )
-        )
-        Surface(
-            color = Color(0xFF1E293B).copy(alpha = 0.85f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, statusColor.copy(alpha = 0.3f)),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(title, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Column {
-                        Text(value, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = TextPrimary)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(trend, style = MaterialTheme.typography.labelSmall, color = statusColor)
-                    }
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(50.dp)) {
-                        CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize(), color = statusColor, strokeWidth = 6.dp, trackColor = Color(0xFF0F172A), strokeCap = androidx.compose.ui.graphics.StrokeCap.Round)
-                    }
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Text(status, style = MaterialTheme.typography.labelMedium, color = statusColor, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-@Composable
-fun EmergencyAlertCard(mins: Int, onDeploy: () -> Unit) {
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "pulse_alpha"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(ColorCriticalDark.copy(alpha = glowAlpha), Color.Transparent),
-                    radius = 800f
-                )
-            )
-            .background(Color(0xFF1E293B).copy(alpha = 0.85f), RoundedCornerShape(24.dp))
-            .border(
-                width = 2.dp,
-                brush = Brush.verticalGradient(listOf(ColorCritical, ColorCritical.copy(alpha = 0.2f))),
-                shape = RoundedCornerShape(24.dp)
-            )
-    ) {
-        // Top-right red dot
-        Box(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(8.dp).background(ColorCritical, RoundedCornerShape(4.dp)))
-        
-        Column(modifier = Modifier.padding(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Stadium, contentDescription = "Alert", tint = ColorCritical, modifier = Modifier.size(48.dp))
-                Spacer(modifier = Modifier.width(16.dp))
-                Text("Crowd Surge Detected", fontWeight = FontWeight.Bold, color = ColorCritical, style = MaterialTheme.typography.headlineSmall)
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("Gate 7", color = TextPrimary, style = MaterialTheme.typography.titleLarge)
-                Box(modifier = Modifier.width(1.dp).height(24.dp).background(GlassBorder))
-                Text("Expected in $mins mins", color = TextPrimary, style = MaterialTheme.typography.titleLarge)
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Confidence", color = TextSecondary, style = MaterialTheme.typography.bodyLarge)
-                Text("96%", color = ColorAiBlue, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = GlassBorder)
-            Spacer(modifier = Modifier.height(24.dp))
-            Text("Recommended Actions", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(12.dp))
-                Text("Open Exit B", color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(12.dp))
-                Text("Deploy 3 Volunteers", color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            Button(
-                onClick = onDeploy, 
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .background(
-                        brush = Brush.horizontalGradient(listOf(ColorCritical, ColorHeavy)),
-                        shape = RoundedCornerShape(32.dp)
-                    ),
-                shape = RoundedCornerShape(32.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        // AI Prediction
+        item {
+            Surface(
+                color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, ColorCritical.copy(alpha = 0.3f)),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Deploy & Execute", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.White)
+                Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(ColorCriticalDark.copy(alpha = 0.5f), Color.Transparent), radius = 500f))) {
+                    Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("AI PREDICTION", color = ColorCritical, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Crowd surge expected at Gate 7 in 6 minutes", color = ColorCritical, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Confidence 96%", color = TextSecondary, fontSize = 12.sp)
+                        }
+                        Text("View Details", color = TextSecondary, fontSize = 12.sp)
+                    }
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector?, iconColor: Color, value: String, subValue: String, subValueColor: Color, isCircular: Boolean = false, modifier: Modifier = Modifier) {
+    Surface(
+        color = Color(0xFF1E293B).copy(alpha = 0.85f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.height(130.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceBetween) {
+            Text(title, color = TextSecondary, fontSize = 10.sp, letterSpacing = 0.5.sp)
+            
+            if (isCircular) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(50.dp)) {
+                    CircularProgressIndicator(progress = { 0.8f }, modifier = Modifier.fillMaxSize(), color = iconColor, strokeWidth = 4.dp, trackColor = Color(0xFF0F172A), strokeCap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    Text(value, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            } else {
+                if (icon != null) {
+                    Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
+                }
+                Text(value, color = TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            }
+            
+            Text(subValue, color = subValueColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

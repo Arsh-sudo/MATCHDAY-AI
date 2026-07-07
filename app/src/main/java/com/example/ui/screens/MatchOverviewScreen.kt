@@ -1,0 +1,174 @@
+package com.example.ui.screens
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.viewmodel.MainViewModel
+import com.example.ui.theme.*
+
+@Composable
+fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp)
+    ) {
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("MATCH OVERVIEW", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+                    Text("Live Match & Operations", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                }
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+
+        // Scoreboard
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(modifier = Modifier.size(64.dp).background(Color.White, CircleShape), contentAlignment = Alignment.Center) {
+                        Text("🇲🇽", fontSize = 36.sp)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("MEX", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("2 - 1", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                    Surface(
+                        color = ColorSafeDark.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.5f))
+                    ) {
+                        Text("72:18", color = ColorSafe, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                    }
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(modifier = Modifier.size(64.dp).background(Color.White, CircleShape), contentAlignment = Alignment.Center) {
+                        Text("🇧🇷", fontSize = 36.sp)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("BRA", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(modifier = Modifier.height(48.dp))
+        }
+
+        // Match Stats
+        item {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("MATCH STATS", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                Text("View All", color = ColorAiBlue, fontSize = 12.sp)
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                StatRing("POSSESSION", "54%", 0.54f, ColorSafe)
+                StatRing("ATTEMPTS", "12", 0.7f, ColorAiBlue)
+                StatRing("CORNERS", "5", 0.4f, ColorAiPurple)
+            }
+            Spacer(modifier = Modifier.height(48.dp))
+        }
+
+        // Operations Snapshot
+        item {
+            Text("OPERATIONS SNAPSHOT", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            Text("All Systems Operational", color = TextSecondary, fontSize = 12.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            SnapshotItem("Security", "Normal", ColorSafe)
+            SnapshotItem("Transportation", "Good", ColorSafe)
+            SnapshotItem("Medical", "Normal", ColorSafe)
+            SnapshotItem("Weather", "Good", ColorSafe)
+        }
+    }
+}
+
+@Composable
+fun StatRing(label: String, value: String, progress: Float, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, color = TextSecondary, fontSize = 10.sp, letterSpacing = 1.sp)
+        Spacer(modifier = Modifier.height(12.dp))
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp)) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val strokeWidth = 8.dp.toPx()
+                drawArc(
+                    color = Color(0xFF1E293B),
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidth)
+                )
+                drawArc(
+                    brush = Brush.sweepGradient(listOf(color.copy(alpha = 0.2f), color)),
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                )
+            }
+            Text(value, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(modifier = Modifier.width(80.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("${(progress*100).toInt()}%", color = color, fontSize = 10.sp)
+            Text("${100 - (progress*100).toInt()}%", color = TextSecondary, fontSize = 10.sp)
+        }
+    }
+}
+
+@Composable
+fun SnapshotItem(label: String, status: String, statusColor: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, color = TextPrimary, fontSize = 14.sp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(status, color = statusColor, fontSize = 14.sp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(statusColor))
+        }
+    }
+}
