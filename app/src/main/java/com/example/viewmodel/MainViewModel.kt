@@ -75,6 +75,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentLanguage = MutableStateFlow("English")
     val currentLanguage: StateFlow<String> = _currentLanguage.asStateFlow()
 
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+
+    private val _loggedInUserType = MutableStateFlow("") // "fan" or "staff"
+    val loggedInUserType: StateFlow<String> = _loggedInUserType.asStateFlow()
+
+    private val _fanName = MutableStateFlow("")
+    val fanName: StateFlow<String> = _fanName.asStateFlow()
+
+    private val _fanSeat = MutableStateFlow("")
+    val fanSeat: StateFlow<String> = _fanSeat.asStateFlow()
+
+    private val _fanTicketId = MutableStateFlow("")
+    val fanTicketId: StateFlow<String> = _fanTicketId.asStateFlow()
+
+    private val _staffId = MutableStateFlow("")
+    val staffId: StateFlow<String> = _staffId.asStateFlow()
+
     private val _dashboardState = MutableStateFlow(
         DashboardState(
             gate7Density = 88,
@@ -269,6 +287,50 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _currentLanguage.value = language
     }
 
+    fun loginAsFan(name: String, ticketId: String, seat: String) {
+        _fanName.value = name
+        _fanTicketId.value = ticketId
+        _fanSeat.value = seat
+        _loggedInUserType.value = "fan"
+        _currentRole.value = "Fan Concierge"
+        _isLoggedIn.value = true
+        
+        viewModelScope.launch {
+            dao.clearMessages()
+            dao.insertMessage(ChatMessageEntity(
+                text = "Hello $name 👋\n\nWelcome to Estadio Azteca! I am your **FIFA 2026 Fan Concierge**, powered by Gemini.\n\n🎫 **Ticket Ref**: $ticketId\n💺 **Block**: $seat\n\nAsk me anything! For example:\n- 'How do I get to Block $seat?'\n- 'Which gate has the shortest queue?'\n- 'Where is the closest merchandise stand?'",
+                isUser = false
+            ))
+        }
+    }
+
+    fun loginAsStaff(id: String, role: String) {
+        _staffId.value = id
+        _loggedInUserType.value = "staff"
+        _currentRole.value = role
+        _isLoggedIn.value = true
+        
+        viewModelScope.launch {
+            dao.clearMessages()
+            dao.insertMessage(ChatMessageEntity(
+                text = "Access Authorized (Staff ID: $id) 👋\n\nMATCHDAY AI initialized as **$role**.\nConnected to:\n✓ HD CCTV Gate Cameras\n✓ Turnstile Flow Sensors\n✓ Local Transit Dispatch\n✓ Medical & Safety Radios\n\nI am ready to help you support safe and efficient stadium operations.",
+                isUser = false
+            ))
+        }
+    }
+
+    fun logout() {
+        _isLoggedIn.value = false
+        _loggedInUserType.value = ""
+        _fanName.value = ""
+        _fanTicketId.value = ""
+        _fanSeat.value = ""
+        _staffId.value = ""
+        viewModelScope.launch {
+            dao.clearMessages()
+        }
+    }
+
     fun sendMessage(text: String) {
         if (text.isBlank() || _isLoading.value) return
         
@@ -286,29 +348,51 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _typingStatus.value = "Generating response..."
             
             val state = _dashboardState.value
-            val systemInstruction = """
-                You are MATCHDAY AI, the Unified GenAI Operations Brain for FIFA World Cup 2026.
-                You manage 16 host cities, 3 countries (Mexico, USA, Canada), and massive scale tournament operations.
-                Your current user role is: ${_currentRole.value}.
-                You MUST respond in the following language: ${_currentLanguage.value}.
-                
-                REAL-TIME STADIUM SNAPSHOT:
-                - Match: Mexico vs Brazil, Current Score: Mex ${state.mexScore} - ${state.braScore} Bra, Minute: ${state.matchMinutes}'
-                - Attendance: ${state.attendance} / 62,300 fans
-                - Overall Crowd Density: ${state.gate7Density}%
-                - Active Incidents: ${state.activeIncidentsCount} (If > 0, Gate 7 has High Density & an active critical alert requiring deployment)
-                - Active Volunteers: ${state.volunteersActive}
-                - Gate 7 Halftime Surge Projection: ${state.surgeMinutes} mins
-                - Transit Wait Time: ${state.transitWaitMins} mins
-                - Parking Fill: ${state.parkingFill}%
-                - Stadium Weather: ${state.temperature}°C, ${state.humidity}% Humidity
-                
-                INSTRUCTIONS:
-                1. Provide highly intelligent, proactive, and concise responses tailored directly to the user's role (${_currentRole.value}).
-                2. Answer queries by referencing the actual real-time numbers in the STADIUM SNAPSHOT above. Be realistic, helpful, and authoritative.
-                3. Keep answers concise (max 3-4 sentences) so they are easily readable on mobile screens by busy operators.
-                4. Suggest actionable next steps (e.g., dispatching volunteers, notifying transit hubs) when densities are high or incidents are active.
-            """.trimIndent()
+            val systemInstruction = if (_loggedInUserType.value == "fan") {
+                """
+                    You are the FIFA WORLD CUP 2026 FAN CONCIERGE, a friendly, helpful, and highly intelligent AI assistant at Estadio Azteca.
+                    You are assisting a fan named ${_fanName.value} who holds ticket ${_fanTicketId.value} and is seated in Block ${_fanSeat.value}.
+                    Your goal is to provide a world-class, premium, and stress-free tournament experience.
+                    You MUST respond in the following language: ${_currentLanguage.value}.
+                    
+                    REAL-TIME STADIUM SNAPSHOT:
+                    - Match: Mexico vs Brazil, Current Score: Mex ${state.mexScore} - ${state.braScore} Bra, Minute: ${state.matchMinutes}'
+                    - Stadium Weather: ${state.temperature}°C, ${state.humidity}% Humidity
+                    - Gate 7 Exit Density: ${state.gate7Density}% (If > 75%, warn them to exit through Gate 3 or Gate 5 for rapid transit access)
+                    - Bus/Metro Waiting Time: ${state.transitWaitMins} mins
+                    - Food & Beverage Lines: Stand 4 is low wait; Mexican Taco bar near Gate 3 has 5 min wait.
+                    
+                    INSTRUCTIONS:
+                    1. Address the fan by name (${_fanName.value}) when appropriate, maintaining a polite, excited, and warm tournament host tone. Do not be overly repetitive with greetings.
+                    2. Provide practical assistance for seat location (Block ${_fanSeat.value}), nearby amenities, elevators, and accessibility options.
+                    3. Proactively guide them on crowd navigation (e.g., recommend entering/exiting via Gate 3/5 instead of Gate 7 due to high density).
+                    4. Keep answers concise (max 3 sentences) so the fan can read them quickly while walking or cheering in the stands.
+                """.trimIndent()
+            } else {
+                """
+                    You are MATCHDAY AI, the Unified GenAI Operations Brain for FIFA World Cup 2026.
+                    You manage 16 host cities, 3 countries (Mexico, USA, Canada), and massive scale tournament operations.
+                    Your current user role is: ${_currentRole.value}.
+                    You MUST respond in the following language: ${_currentLanguage.value}.
+                    
+                    REAL-TIME STADIUM SNAPSHOT:
+                    - Match: Mexico vs Brazil, Current Score: Mex ${state.mexScore} - ${state.braScore} Bra, Minute: ${state.matchMinutes}'
+                    - Attendance: ${state.attendance} / 62,300 fans
+                    - Overall Crowd Density: ${state.gate7Density}%
+                    - Active Incidents: ${state.activeIncidentsCount} (If > 0, Gate 7 has High Density & an active critical alert requiring deployment)
+                    - Active Volunteers: ${state.volunteersActive}
+                    - Gate 7 Halftime Surge Projection: ${state.surgeMinutes} mins
+                    - Transit Wait Time: ${state.transitWaitMins} mins
+                    - Parking Fill: ${state.parkingFill}%
+                    - Stadium Weather: ${state.temperature}°C, ${state.humidity}% Humidity
+                    
+                    INSTRUCTIONS:
+                    1. Provide highly intelligent, proactive, and concise responses tailored directly to the user's role (${_currentRole.value}).
+                    2. Answer queries by referencing the actual real-time numbers in the STADIUM SNAPSHOT above. Be realistic, helpful, and authoritative.
+                    3. Keep answers concise (max 3-4 sentences) so they are easily readable on mobile screens by busy operators.
+                    4. Suggest actionable next steps (e.g., dispatching volunteers, notifying transit hubs) when densities are high or incidents are active.
+                """.trimIndent()
+            }
             
             val recentMessages = messages.value.takeLast(9)
             val history = recentMessages.joinToString("\n") { 
@@ -330,7 +414,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearHistory() {
         viewModelScope.launch {
             dao.clearMessages()
-            dao.insertMessage(ChatMessageEntity(text = "Hello Operations Staff 👋\n\nI am MATCHDAY AI.\nConnected to:\n✓ CCTV\n✓ Crowd Sensors\n✓ Transit APIs\n✓ Weather\n✓ Medical Teams\n\nAsk anything.", isUser = false))
+            if (_loggedInUserType.value == "fan") {
+                dao.insertMessage(ChatMessageEntity(
+                    text = "Hello ${_fanName.value} 👋\n\nWelcome to Estadio Azteca! I am your **FIFA 2026 Fan Concierge**, powered by Gemini.\n\n🎫 **Ticket Ref**: ${_fanTicketId.value}\n💺 **Block**: ${_fanSeat.value}\n\nAsk me anything! For example:\n- 'How do I get to Block ${_fanSeat.value}?'\n- 'Which gate has the shortest queue?'\n- 'Where is the closest merchandise stand?'",
+                    isUser = false
+                ))
+            } else {
+                dao.insertMessage(ChatMessageEntity(
+                    text = "Access Authorized (Staff ID: ${_staffId.value}) 👋\n\nMATCHDAY AI initialized as **${_currentRole.value}**.\nConnected to:\n✓ HD CCTV Gate Cameras\n✓ Turnstile Flow Sensors\n✓ Local Transit Dispatch\n✓ Medical & Safety Radios\n\nI am ready to help you support safe and efficient stadium operations.",
+                    isUser = false
+                ))
+            }
         }
     }
     

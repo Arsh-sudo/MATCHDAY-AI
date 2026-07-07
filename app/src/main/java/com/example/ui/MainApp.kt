@@ -43,63 +43,122 @@ import com.example.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp(viewModel: MainViewModel = viewModel()) {
-    var currentScreen by remember { mutableStateOf(Screen.Home) }
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val loggedInUserType by viewModel.loggedInUserType.collectAsState()
+    val fanName by viewModel.fanName.collectAsState()
+    val staffId by viewModel.staffId.collectAsState()
+    val currentRole by viewModel.currentRole.collectAsState()
     
-    Box(modifier = Modifier.fillMaxSize().background(BgMain)) {
-        // Subtle background grid
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val step = 40.dp.toPx()
-            for (x in 0..size.width.toInt() step step.toInt()) {
-                drawLine(Color.White.copy(alpha = 0.02f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height))
+    if (!isLoggedIn) {
+        LoginScreen(viewModel = viewModel)
+    } else {
+        var currentScreen by remember { mutableStateOf(Screen.Home) }
+        
+        Box(modifier = Modifier.fillMaxSize().background(BgMain)) {
+            // Subtle background grid
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val step = 40.dp.toPx()
+                for (x in 0..size.width.toInt() step step.toInt()) {
+                    drawLine(Color.White.copy(alpha = 0.02f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height))
+                }
+                for (y in 0..size.height.toInt() step step.toInt()) {
+                    drawLine(Color.White.copy(alpha = 0.02f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()))
+                }
             }
-            for (y in 0..size.height.toInt() step step.toInt()) {
-                drawLine(Color.White.copy(alpha = 0.02f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()))
-            }
-        }
 
-        Scaffold(
-            modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
-            containerColor = Color.Transparent,
-            topBar = {
-                if (currentScreen == Screen.Home) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(onClick = { /* Menu */ }, modifier = Modifier.size(24.dp)) {
-                                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextPrimary)
+            Scaffold(
+                modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
+                containerColor = Color.Transparent,
+                topBar = {
+                    if (currentScreen == Screen.Home) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box {
+                                        var showLogoutMenu by remember { mutableStateOf(false) }
+                                        IconButton(onClick = { showLogoutMenu = true }, modifier = Modifier.size(24.dp)) {
+                                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextPrimary)
+                                        }
+                                        DropdownMenu(
+                                            expanded = showLogoutMenu,
+                                            onDismissRequest = { showLogoutMenu = false },
+                                            modifier = Modifier.background(Color(0xFF0F172A))
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text(
+                                                            text = if (loggedInUserType == "fan") "FAN ACCESS" else "OPERATIONS CONTROL",
+                                                            fontSize = 10.sp,
+                                                            color = if (loggedInUserType == "fan") ColorAiBlue else ColorAiPurple,
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                        Text(
+                                                            text = if (loggedInUserType == "fan") fanName else "Staff ID: $staffId",
+                                                            fontSize = 14.sp,
+                                                            color = TextPrimary,
+                                                            fontWeight = FontWeight.SemiBold
+                                                        )
+                                                        if (loggedInUserType == "staff") {
+                                                            Text(
+                                                                text = currentRole,
+                                                                fontSize = 11.sp,
+                                                                color = TextSecondary
+                                                            )
+                                                        }
+                                                    }
+                                                },
+                                                onClick = {},
+                                                enabled = false
+                                            )
+                                            HorizontalDivider(color = GlassBorder)
+                                            DropdownMenuItem(
+                                                text = { Text("Log Out / Switch Account", color = ColorCritical) },
+                                                onClick = {
+                                                    showLogoutMenu = false
+                                                    viewModel.logout()
+                                                }
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = if (loggedInUserType == "fan") "FAN CONCIERGE" else "MATCHDAY AI", 
+                                                fontWeight = FontWeight.ExtraBold, 
+                                                color = TextPrimary, 
+                                                fontSize = 20.sp, 
+                                                letterSpacing = 0.5.sp
+                                            )
+                                        }
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(12.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("Powered by Gemini", color = ColorAiPurple, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                        }
+                                    }
                                 }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("MATCHDAY AI", fontWeight = FontWeight.ExtraBold, color = TextPrimary, fontSize = 20.sp, letterSpacing = 0.5.sp)
+                                
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("LIVE", color = ColorSafe, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            GlowingIndicator()
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text("02:08 PM", color = TextSecondary, fontSize = 12.sp)
                                     }
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(12.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Powered by Gemini", color = ColorAiPurple, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                                    }
-                                }
-                            }
-                            
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("LIVE", color = ColorSafe, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        GlowingIndicator()
-                                    }
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text("02:08 PM", color = TextSecondary, fontSize = 12.sp)
                                 }
                             }
                         }
                     }
-                }
-            },
+                },
             bottomBar = {
                 // Floating Navigation
                 Box(
@@ -197,6 +256,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
             }
         }
     }
+}
 }
 
 @Composable

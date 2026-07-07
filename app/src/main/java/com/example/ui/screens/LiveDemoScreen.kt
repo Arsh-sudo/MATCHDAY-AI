@@ -47,6 +47,8 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val typingStatus by viewModel.typingStatus.collectAsStateWithLifecycle()
     val currentRoleState by viewModel.currentRole.collectAsStateWithLifecycle()
     val currentLanguageState by viewModel.currentLanguage.collectAsStateWithLifecycle()
+    val loggedInUserType by viewModel.loggedInUserType.collectAsStateWithLifecycle()
+    val fanSeat by viewModel.fanSeat.collectAsStateWithLifecycle()
     
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -146,7 +148,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                     border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showRoleMenu = true }
+                        .clickable(enabled = loggedInUserType != "fan") { showRoleMenu = true }
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -154,25 +156,39 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("PERSONA", fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
-                            Text(currentRoleState, fontSize = 12.sp, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                text = if (loggedInUserType == "fan") "ASSIGNED SEAT" else "PERSONA", 
+                                fontSize = 9.sp, 
+                                color = TextSecondary, 
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = if (loggedInUserType == "fan") "Block $fanSeat" else currentRoleState, 
+                                fontSize = 12.sp, 
+                                color = TextPrimary, 
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-                        Text("▾", color = TextSecondary, fontSize = 14.sp)
+                        if (loggedInUserType != "fan") {
+                            Text("▾", color = TextSecondary, fontSize = 14.sp)
+                        }
                     }
                 }
-                DropdownMenu(
-                    expanded = showRoleMenu,
-                    onDismissRequest = { showRoleMenu = false },
-                    modifier = Modifier.background(Color(0xFF1E293B))
-                ) {
-                    listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
-                        DropdownMenuItem(
-                            text = { Text(role, color = TextPrimary) },
-                            onClick = {
-                                viewModel.setRole(role)
-                                showRoleMenu = false
-                            }
-                        )
+                if (loggedInUserType != "fan") {
+                    DropdownMenu(
+                        expanded = showRoleMenu,
+                        onDismissRequest = { showRoleMenu = false },
+                        modifier = Modifier.background(Color(0xFF1E293B))
+                    ) {
+                        listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
+                            DropdownMenuItem(
+                                text = { Text(role, color = TextPrimary) },
+                                onClick = {
+                                    viewModel.setRole(role)
+                                    showRoleMenu = false
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -27,10 +27,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
+import androidx.compose.ui.platform.testTag
+
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Warning
 
 @Composable
 fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
     val state by viewModel.dashboardState.collectAsStateWithLifecycle()
+    val loggedInUserType by viewModel.loggedInUserType.collectAsStateWithLifecycle()
+    val fanName by viewModel.fanName.collectAsStateWithLifecycle()
+    val fanSeat by viewModel.fanSeat.collectAsStateWithLifecycle()
+    val fanTicketId by viewModel.fanTicketId.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -94,212 +103,402 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
             }
         }
 
-        // AI Stadium Score
-        item {
-            Surface(
-                color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
-            ) {
-                Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column {
-                        Text("AI STADIUM SCORE", color = ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(state.aiScore.toString(), color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-                            Text("/100", color = TextSecondary, fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+        if (loggedInUserType == "fan") {
+            // ================== FAN-SPECIFIC EXPERIENCE ==================
+            
+            // 1. Digital Match ticket & Seat Guide Card
+            item {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("YOUR DIGITAL MATCH PASS", color = ColorAiBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(ColorSafe.copy(alpha = 0.15f))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text("ACTIVE", color = ColorSafe, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
-                        Text(
-                            if (state.activeIncidentsCount > 0) "Minor gate congestion detected" else "Everything operating smoothly", 
-                            color = TextSecondary, 
-                            fontSize = 12.sp
-                        )
-                    }
-                    // Mini graph
-                    Box(modifier = Modifier.width(80.dp).height(40.dp)) {
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            val path = Path()
-                            path.moveTo(0f, size.height * 0.8f)
-                            path.quadraticBezierTo(size.width * 0.25f, size.height, size.width * 0.5f, size.height * 0.4f)
-                            path.quadraticBezierTo(size.width * 0.75f, 0f, size.width, size.height * 0.2f)
-                            drawPath(path, ColorSafe, style = Stroke(width = 2.dp.toPx()))
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(fanName.uppercase(), color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                                Text("Ticket ID: $fanTicketId", color = TextSecondary, fontSize = 12.sp)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("BLOCK / SEAT", color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                Text(fanSeat, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider(color = GlassBorder)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        // AI Wayfinding Suggestion
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(Icons.Filled.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(20.dp))
+                            Text(
+                                text = "AI Wayfinding Tip: Gate 3 has normal density (${(15..25).random()}%). Avoid Gate 7 which has high congestion due to a halftime surge prediction.",
+                                color = TextPrimary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                lineHeight = 16.sp,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
                 }
             }
-        }
 
-        // Stats Row
-        item {
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatCard(
-                    title = "ATTENDANCE",
-                    icon = Icons.Default.Group,
-                    iconColor = ColorAiBlue,
-                    value = String.format("%,d", state.attendance),
-                    subValue = "+4.3%",
-                    subValueColor = ColorSafe,
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    title = "CROWD DENSITY",
-                    icon = null,
-                    iconColor = if (state.gate7Density >= 80) ColorCritical else if (state.gate7Density >= 50) ColorAttention else ColorSafe,
-                    value = "${state.gate7Density}%",
-                    subValue = if (state.gate7Density >= 80) "HIGH" else if (state.gate7Density >= 50) "MODERATE" else "NORMAL",
-                    subValueColor = if (state.gate7Density >= 80) ColorCritical else if (state.gate7Density >= 50) ColorAttention else ColorSafe,
-                    isCircular = true,
-                    progress = state.gate7Density / 100f,
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    title = "INCIDENTS",
-                    icon = Icons.Default.Warning,
-                    iconColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe,
-                    value = state.activeIncidentsCount.toString(),
-                    subValue = if (state.activeIncidentsCount > 0) "ACTIVE" else "SECURE",
-                    subValueColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe,
-                    modifier = Modifier.weight(1f)
-                )
+            // 2. Convenience & Concessions Live Status Row
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        title = "STAND 4 QUEUE",
+                        icon = null,
+                        iconColor = ColorSafe,
+                        value = "2 Min",
+                        subValue = "TACO BAR & BEER",
+                        subValueColor = ColorSafe,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "GATE 3 ENTRY",
+                        icon = null,
+                        iconColor = ColorSafe,
+                        value = "3 Min",
+                        subValue = "RECOMMENDED",
+                        subValueColor = ColorSafe,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "RESTROOMS (B1)",
+                        icon = null,
+                        iconColor = ColorAttention,
+                        value = "4 Min",
+                        subValue = "MODERATE QUEUE",
+                        subValueColor = ColorAttention,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
-        }
 
-        // AI Prediction
-        item {
-            val isIncident = state.activeIncidentsCount > 0
-            val cardBorder = if (isIncident) ColorCritical.copy(alpha = 0.3f) else ColorSafe.copy(alpha = 0.3f)
-            val radialColor = if (isIncident) ColorCriticalDark.copy(alpha = 0.5f) else ColorSafeDark.copy(alpha = 0.3f)
+            // 3. Match Statistics (Fan Engagement)
+            item {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text("LIVE MATCH STATS", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Possession bar
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("MEX 54%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Ball Possession", color = TextSecondary, fontSize = 12.sp)
+                            Text("BRA 46%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFF0F172A))) {
+                            Box(modifier = Modifier.weight(0.54f).fillMaxHeight().background(Color(0xFF006633)))
+                            Box(modifier = Modifier.weight(0.46f).fillMaxHeight().background(Color(0xFFFFCC00)))
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Other stats
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("5", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("Shots on Target", color = TextSecondary, fontSize = 10.sp)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("6", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("Corner Kicks", color = TextSecondary, fontSize = 10.sp)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("12", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("Fouls committed", color = TextSecondary, fontSize = 10.sp)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 4. Group Standings
+            item {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text("GROUP A LIVE STANDINGS", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("1", color = AccentLight, fontWeight = FontWeight.Bold, modifier = Modifier.width(20.dp), fontSize = 12.sp)
+                            Text("🇲🇽 MEXICO", color = TextPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), fontSize = 12.sp)
+                            Text("3  2  1  0  +3  7 pts", color = TextPrimary, fontSize = 12.sp)
+                        }
+                        HorizontalDivider(color = GlassBorder.copy(alpha = 0.5f))
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("2", color = TextSecondary, fontWeight = FontWeight.Bold, modifier = Modifier.width(20.dp), fontSize = 12.sp)
+                            Text("🇧🇷 BRAZIL", color = TextPrimary, modifier = Modifier.weight(1f), fontSize = 12.sp)
+                            Text("3  2  0  1  +2  6 pts", color = TextPrimary, fontSize = 12.sp)
+                        }
+                        HorizontalDivider(color = GlassBorder.copy(alpha = 0.5f))
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("3", color = TextSecondary, fontWeight = FontWeight.Bold, modifier = Modifier.width(20.dp), fontSize = 12.sp)
+                            Text("🇸🇪 SWEDEN", color = TextSecondary, modifier = Modifier.weight(1f), fontSize = 12.sp)
+                            Text("3  1  0  2  -1  3 pts", color = TextSecondary, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
             
-            Surface(
-                color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
-            ) {
-                Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(radialColor, Color.Transparent), radius = 500f))) {
+        } else {
+            // ================== STAFF / OPERATIONS EXPERIENCE ==================
+            
+            // AI Stadium Score
+            item {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                ) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("AI PREDICTION", color = if (isIncident) ColorCritical else ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
+                        Column {
+                            Text("AI STADIUM SCORE", color = ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(state.aiScore.toString(), color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                                Text("/100", color = TextSecondary, fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
+                            }
                             Text(
-                                if (isIncident) "Crowd surge expected at Gate 7 in ${state.surgeMinutes} minutes" else "Normal egress flows predicted. Gate 7 is clear.",
-                                color = if (isIncident) ColorCritical else TextPrimary,
-                                fontSize = 16.sp,
+                                if (state.activeIncidentsCount > 0) "Minor gate congestion detected" else "Everything operating smoothly", 
+                                color = TextSecondary, 
+                                fontSize = 12.sp
+                            )
+                        }
+                        // Mini graph
+                        Box(modifier = Modifier.width(80.dp).height(40.dp)) {
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                val path = Path()
+                                path.moveTo(0f, size.height * 0.8f)
+                                path.quadraticBezierTo(size.width * 0.25f, size.height, size.width * 0.5f, size.height * 0.4f)
+                                path.quadraticBezierTo(size.width * 0.75f, 0f, size.width, size.height * 0.2f)
+                                drawPath(path, ColorSafe, style = Stroke(width = 2.dp.toPx()))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Stats Row
+            item {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    StatCard(
+                        title = "ATTENDANCE",
+                        icon = Icons.Default.Group,
+                        iconColor = ColorAiBlue,
+                        value = String.format("%,d", state.attendance),
+                        subValue = "+4.3%",
+                        subValueColor = ColorSafe,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "CROWD DENSITY",
+                        icon = null,
+                        iconColor = if (state.gate7Density >= 80) ColorCritical else if (state.gate7Density >= 50) ColorAttention else ColorSafe,
+                        value = "${state.gate7Density}%",
+                        subValue = if (state.gate7Density >= 80) "HIGH" else if (state.gate7Density >= 50) "MODERATE" else "NORMAL",
+                        subValueColor = if (state.gate7Density >= 80) ColorCritical else if (state.gate7Density >= 50) ColorAttention else ColorSafe,
+                        isCircular = true,
+                        progress = state.gate7Density / 100f,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = "INCIDENTS",
+                        icon = Icons.Default.Warning,
+                        iconColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe,
+                        value = state.activeIncidentsCount.toString(),
+                        subValue = if (state.activeIncidentsCount > 0) "ACTIVE" else "SECURE",
+                        subValueColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // AI Prediction
+            item {
+                val isIncident = state.activeIncidentsCount > 0
+                val cardBorder = if (isIncident) ColorCritical.copy(alpha = 0.3f) else ColorSafe.copy(alpha = 0.3f)
+                val radialColor = if (isIncident) ColorCriticalDark.copy(alpha = 0.5f) else ColorSafeDark.copy(alpha = 0.3f)
+                
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(radialColor, Color.Transparent), radius = 500f))) {
+                        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("AI PREDICTION", color = if (isIncident) ColorCritical else ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    if (isIncident) "Crowd surge expected at Gate 7 in ${state.surgeMinutes} minutes" else "Normal egress flows predicted. Gate 7 is clear.",
+                                    color = if (isIncident) ColorCritical else TextPrimary,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Confidence 96%", color = TextSecondary, fontSize = 12.sp)
+                            }
+                            TextButton(onClick = onNavigateToFeeds) {
+                                Text("View Details", color = TextSecondary, fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Live CCTV Feeds Preview Section
+            item {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .clickable { onNavigateToFeeds() }
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(ColorCritical)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "LIVE CCTV FEEDS",
+                                    color = TextPrimary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                            Text(
+                                "View All (6)",
+                                color = ColorAiBlue,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Confidence 96%", color = TextSecondary, fontSize = 12.sp)
                         }
-                        TextButton(onClick = onNavigateToFeeds) {
-                            Text("View Details", color = TextSecondary, fontSize = 12.sp)
-                        }
-                    }
-                }
-            }
-        }
-
-        // Live CCTV Feeds Preview Section
-        item {
-            Surface(
-                color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .clickable { onNavigateToFeeds() }
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(ColorCritical)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                "LIVE CCTV FEEDS",
-                                color = TextPrimary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            )
-                        }
-                        Text(
-                            "View All (6)",
-                            color = ColorAiBlue,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        // Preview 1 (Gate 7)
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Image(
-                                painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.img_cctv_gate7_1783444051163),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
+                            // Preview 1 (Gate 7)
                             Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
-                            )
-                            Text(
-                                "Gate 7",
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(8.dp)
-                            )
-                        }
+                                    .weight(1f)
+                                    .height(80.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            ) {
+                                Image(
+                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.img_cctv_gate7_1783444051163),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
+                                )
+                                Text(
+                                    "Gate 7",
+                                    color = Color.White,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(8.dp)
+                                        .testTag("cctv_preview_gate7")
+                                )
+                            }
 
-                        // Preview 2 (Gate 3)
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                        ) {
-                            Image(
-                                painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.img_cctv_gate3_1783444067059),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
+                            // Preview 2 (Gate 3)
                             Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
-                            )
-                            Text(
-                                "Gate 3",
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(8.dp)
-                            )
+                                    .weight(1f)
+                                    .height(80.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            ) {
+                                Image(
+                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.img_cctv_gate3_1783444067059),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
+                                )
+                                Text(
+                                    "Gate 3",
+                                    color = Color.White,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(8.dp)
+                                        .testTag("cctv_preview_gate3")
+                                )
+                            }
                         }
                     }
                 }
@@ -314,24 +513,52 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
         color = Color(0xFF1E293B).copy(alpha = 0.85f),
         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.height(110.dp)
+        modifier = modifier.height(120.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceBetween) {
-            Text(title, color = TextSecondary, fontSize = 10.sp, letterSpacing = 0.5.sp)
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = title,
+                color = TextSecondary,
+                fontSize = 10.sp,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
             
             if (isCircular) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(50.dp)) {
-                    CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize(), color = iconColor, strokeWidth = 4.dp, trackColor = Color(0xFF0F172A), strokeCap = androidx.compose.ui.graphics.StrokeCap.Round)
-                    Text(value, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(46.dp)) {
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize(),
+                        color = iconColor,
+                        strokeWidth = 3.5.dp,
+                        trackColor = Color(0xFF0F172A),
+                        strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                    )
+                    Text(value, color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             } else {
-                if (icon != null) {
-                    Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (icon != null) {
+                        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
+                    }
+                    Text(value, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
-                Text(value, color = TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
             
-            Text(subValue, color = subValueColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = subValue,
+                color = subValueColor,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
         }
     }
 }
