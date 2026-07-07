@@ -71,7 +71,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 24.dp)
-            .padding(bottom = 120.dp), // Leaves space for the floating bottom navigation bar
+            .padding(bottom = 16.dp), // Position input box neatly above floating navigation bar
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 1. Header Row
