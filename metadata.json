@@ -1,0 +1,6 @@
+{
+  "name": "Matchday AI",
+  "description": "The Unified GenAI Operations Brain for FIFA World Cup 2026",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
