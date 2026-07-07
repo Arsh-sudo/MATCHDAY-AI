@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
@@ -84,6 +85,11 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
                         .padding(vertical = 6.dp),
                     horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
                 ) {
+                    val bubbleShape = if (message.isUser) {
+                        RoundedCornerShape(20.dp, 20.dp, 4.dp, 20.dp)
+                    } else {
+                        RoundedCornerShape(20.dp, 20.dp, 20.dp, 4.dp)
+                    }
                     Box(
                         modifier = Modifier
                             .widthIn(max = 320.dp)
@@ -91,14 +97,9 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
                                 color = when {
                                     message.isError -> MaterialTheme.colorScheme.errorContainer
                                     message.isUser -> UserBubbleBg
-                                    else -> GlassBg
+                                    else -> AiBubbleBg
                                 },
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .then(
-                                if (!message.isUser && !message.isError) {
-                                    Modifier.border(1.dp, GlassBorder, RoundedCornerShape(20.dp))
-                                } else Modifier
+                                shape = bubbleShape
                             )
                             .padding(16.dp)
                     ) {
@@ -135,43 +136,47 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
         }
 
         // Input Area
-        Row(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            shape = RoundedCornerShape(32.dp),
+            color = BgCard,
+            shadowElevation = 8.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor)
         ) {
-            OutlinedTextField(
-                value = textState,
-                onValueChange = { textState = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Ask MATCHDAY AI...") },
-                shape = RoundedCornerShape(24.dp),
-                enabled = !isLoading,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = BgCardSecondary,
-                    unfocusedContainerColor = BgCardSecondary,
-                    focusedBorderColor = ColorAiBlue,
-                    unfocusedBorderColor = BorderColor
-                )
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            FloatingActionButton(
-                onClick = {
-                    if (!isLoading && textState.isNotBlank()) {
-                        viewModel.sendMessage(textState)
-                        textState = ""
-                    }
-                },
-                modifier = Modifier.size(56.dp),
-                containerColor = Color.Transparent,
-                elevation = FloatingActionButtonDefaults.elevation(0.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(modifier = Modifier.fillMaxSize().background(
-                    Brush.linearGradient(listOf(ColorAiGradientStart, ColorAiGradientEnd)),
-                    shape = RoundedCornerShape(28.dp)
-                ), contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = Color.White)
+                androidx.compose.foundation.text.BasicTextField(
+                    value = textState,
+                    onValueChange = { textState = it },
+                    modifier = Modifier.weight(1f),
+                    textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 16.sp),
+                    enabled = !isLoading,
+                    decorationBox = { innerTextField ->
+                        if (textState.isEmpty()) {
+                            Text("Ask MATCHDAY AI...", color = TextSecondary, fontSize = 16.sp)
+                        }
+                        innerTextField()
+                    }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                IconButton(
+                    onClick = {
+                        if (!isLoading && textState.isNotBlank()) {
+                            viewModel.sendMessage(textState)
+                            textState = ""
+                        }
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Brush.linearGradient(listOf(ColorAiGradientStart, ColorAiGradientEnd)), RoundedCornerShape(24.dp))
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = Color.White, modifier = Modifier.size(20.dp))
                 }
             }
         }

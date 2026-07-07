@@ -178,7 +178,7 @@ fun KpiBox(title: String, value: String, modifier: Modifier = Modifier, isAi: Bo
 @Composable
 fun DashboardMetricCard(title: String, value: String, trend: String, progress: Float, status: String, statusColor: Color, modifier: Modifier = Modifier) {
     GlassCard(modifier) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Text(title, style = MaterialTheme.typography.titleSmall, color = TextSecondary)
             Spacer(modifier = Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
@@ -187,7 +187,7 @@ fun DashboardMetricCard(title: String, value: String, trend: String, progress: F
                     Text(trend, style = MaterialTheme.typography.labelSmall, color = ColorSafe)
                 }
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(50.dp)) {
-                    CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize(), color = statusColor, strokeWidth = 4.dp, trackColor = GlassBg)
+                    CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize(), color = statusColor, strokeWidth = 4.dp, trackColor = GlassBorder)
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -208,15 +208,19 @@ fun EmergencyAlertCard(mins: Int, onDeploy: () -> Unit) {
         ), label = "shake_offset"
     )
 
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(x = offset.dp),
-        colors = CardDefaults.cardColors(containerColor = ColorCritical.copy(alpha = 0.15f)),
-        border = androidx.compose.foundation.BorderStroke(1.dp, ColorCritical.copy(alpha = 0.5f)),
-        shape = RoundedCornerShape(20.dp)
+            .offset(x = offset.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(ColorCritical.copy(alpha = 0.3f), ColorCritical.copy(alpha = 0.1f))
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .border(1.dp, ColorCritical.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Warning, contentDescription = "Alert", tint = ColorCritical)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -245,13 +249,15 @@ fun EmergencyAlertCard(mins: Int, onDeploy: () -> Unit) {
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Deploy 3 Volunteers", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onDeploy, 
                 colors = ButtonDefaults.buttonColors(containerColor = ColorCritical),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 8.dp)
             ) {
-                Text("Deploy & Execute")
+                Text("Deploy & Execute", fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -274,6 +280,8 @@ fun GlassCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
         shape = RoundedCornerShape(20.dp),
         modifier = modifier.fillMaxWidth()
     ) {
-        content()
+        Box(modifier = Modifier.padding(8.dp)) {
+            content()
+        }
     }
 }

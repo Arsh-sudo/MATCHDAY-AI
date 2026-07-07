@@ -25,6 +25,12 @@ import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.drawBehind
+
 data class StadiumZone(val id: String, val name: String, val density: Float)
 
 @Composable
@@ -39,6 +45,18 @@ fun MapScreen(viewModel: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .drawBehind {
+                val gridSize = 30.dp.toPx()
+                val width = size.width
+                val height = size.height
+                val gridColor = ColorAiBlue.copy(alpha = 0.05f)
+                for (x in 0..width.toInt() step gridSize.toInt()) {
+                    drawLine(gridColor, Offset(x.toFloat(), 0f), Offset(x.toFloat(), height), strokeWidth = 1f)
+                }
+                for (y in 0..height.toInt() step gridSize.toInt()) {
+                    drawLine(gridColor, Offset(0f, y.toFloat()), Offset(width, y.toFloat()), strokeWidth = 1f)
+                }
+            }
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -150,13 +168,43 @@ fun StadiumMapLayout(gate7Density: Float, onZoneClick: (StadiumZone) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .fillMaxHeight(0.7f)
-                .background(ColorSafe.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
-                .border(2.dp, ColorSafe.copy(alpha = 0.3f), RoundedCornerShape(24.dp)),
+                .background(ColorSafe.copy(alpha = 0.05f), RoundedCornerShape(24.dp))
+                .drawBehind {
+                    drawRoundRect(
+                        color = ColorSafe.copy(alpha = 0.3f),
+                        size = size,
+                        cornerRadius = CornerRadius(24.dp.toPx()),
+                        style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
+                    )
+                },
             contentAlignment = Alignment.Center
         ) {
-            Box(modifier = Modifier.size(60.dp).border(1.dp, ColorSafe.copy(alpha = 0.2f), RoundedCornerShape(30.dp)))
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(ColorSafe.copy(alpha = 0.2f)))
-            Text("PITCH", color = ColorSafe.copy(alpha = 0.5f), fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .drawBehind {
+                        drawCircle(
+                            color = ColorSafe.copy(alpha = 0.3f),
+                            radius = size.width / 2,
+                            style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
+                        )
+                    }
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .drawBehind {
+                        drawLine(
+                            color = ColorSafe.copy(alpha = 0.3f),
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx(),
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                        )
+                    }
+            )
+            Text("PITCH", color = ColorSafe.copy(alpha = 0.3f), fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
         }
 
         // North Stand
@@ -181,10 +229,23 @@ fun StadiumZoneBox(zone: StadiumZone, modifier: Modifier, onClick: (StadiumZone)
         else -> ColorSafe
     }
     
+    val isHighlighted = scale > 1f
+    
     Box(
         modifier = modifier
-            .background(color.copy(alpha = 0.2f * scale), RoundedCornerShape(12.dp))
-            .border(1.dp, color.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+            .background(color.copy(alpha = 0.15f * scale), RoundedCornerShape(16.dp))
+            .then(
+                if (isHighlighted) {
+                    Modifier.drawBehind {
+                        drawRoundRect(
+                            color = color.copy(alpha = 0.3f),
+                            size = size,
+                            cornerRadius = CornerRadius(16.dp.toPx())
+                        )
+                    }
+                } else Modifier
+            )
+            .border(1.dp, color.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
             .clickable { onClick(zone) },
         contentAlignment = Alignment.Center
     ) {
