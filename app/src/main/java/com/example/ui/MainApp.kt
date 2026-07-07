@@ -32,6 +32,7 @@ import com.example.viewmodel.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.theme.*
 import androidx.compose.animation.core.*
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,16 +40,26 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
     var selectedTab by remember { mutableStateOf(0) }
     
     Box(modifier = Modifier.fillMaxSize().background(BgMain)) {
-        // Pitch Background
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 1.dp.toPx()
-            val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-            val lineColor = GlassBorder.copy(alpha = 0.3f)
-            
-            // Center circle
-            drawCircle(lineColor, radius = size.width / 4, center = center, style = Stroke(strokeWidth, pathEffect = dashEffect))
-            // Center line
-            drawLine(lineColor, start = Offset(0f, size.height / 2), end = Offset(size.width, size.height / 2), strokeWidth = strokeWidth, pathEffect = dashEffect)
+        // Perspective Stadium Background at bottom
+        Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(400.dp)) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val strokeWidth = 2.dp.toPx()
+                val centerOffset = Offset(size.width / 2, size.height / 2 + 100f)
+                
+                // Draw some glowing ellipses for the stadium representation
+                for (i in 1..4) {
+                    drawOval(
+                        color = ColorAiBlue.copy(alpha = 0.1f * (5-i)),
+                        topLeft = Offset(centerOffset.x - (200f * i), centerOffset.y - (80f * i)),
+                        size = androidx.compose.ui.geometry.Size(400f * i, 160f * i),
+                        style = Stroke(width = strokeWidth)
+                    )
+                }
+            }
+            // Add a gradient overlay to blend into the background
+            Box(modifier = Modifier.fillMaxSize().background(
+                Brush.verticalGradient(listOf(BgMain, Color.Transparent, BgMain))
+            ))
         }
 
         Scaffold(
@@ -70,11 +81,14 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                         
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("● LIVE", color = ColorSafe, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                Text("02:08 PM", color = TextSecondary, fontSize = 12.sp)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("● LIVE", color = ColorSafe, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    GlowingIndicator()
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text("02:08 PM", color = TextPrimary, fontSize = 12.sp)
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            GlowingIndicator()
                         }
                     }
                 }
@@ -85,9 +99,10 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                     NavigationBar(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(32.dp))
-                            .background(Color(0xFF0F172A).copy(alpha = 0.85f))
-                            .border(1.dp, GlassBorder, RoundedCornerShape(32.dp)),
+                            .height(84.dp)
+                            .clip(RoundedCornerShape(42.dp))
+                            .background(Color(0xFF0B1120).copy(alpha = 0.85f))
+                            .border(1.dp, GlassBorder, RoundedCornerShape(42.dp)),
                         containerColor = Color.Transparent,
                         contentColor = TextPrimary,
                         tonalElevation = 0.dp
@@ -95,7 +110,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                         NavigationBarItem(
                             selected = selectedTab == 0,
                             onClick = { selectedTab = 0 },
-                            icon = { Icon(if(selectedTab == 0) Icons.Filled.Analytics else Icons.Outlined.Analytics, contentDescription = "Dashboard") },
+                            icon = { Icon(if(selectedTab == 0) Icons.Filled.Analytics else Icons.Outlined.Analytics, contentDescription = "Home", modifier = Modifier.size(28.dp)) },
                             label = { Text("Home", fontSize = 12.sp, fontWeight = if(selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = ColorAiBlue,
@@ -106,7 +121,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                         NavigationBarItem(
                             selected = selectedTab == 1,
                             onClick = { selectedTab = 1 },
-                            icon = { Icon(if(selectedTab == 1) Icons.Filled.Map else Icons.Outlined.Map, contentDescription = "Map") },
+                            icon = { Icon(if(selectedTab == 1) Icons.Filled.Map else Icons.Outlined.Map, contentDescription = "Stadium", modifier = Modifier.size(28.dp)) },
                             label = { Text("Stadium", fontSize = 12.sp, fontWeight = if(selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = ColorAiBlue,
@@ -117,10 +132,10 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                         NavigationBarItem(
                             selected = selectedTab == 2,
                             onClick = { selectedTab = 2 },
-                            icon = { Icon(if(selectedTab == 2) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubble, contentDescription = "AI") },
+                            icon = { Icon(if(selectedTab == 2) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubble, contentDescription = "AI Copilot", modifier = Modifier.size(28.dp)) },
                             label = { Text("AI Copilot", fontSize = 12.sp, fontWeight = if(selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = ColorAiPurple,
+                                selectedIconColor = ColorAiBlue,
                                 unselectedIconColor = TextSecondary,
                                 indicatorColor = Color.Transparent
                             )
