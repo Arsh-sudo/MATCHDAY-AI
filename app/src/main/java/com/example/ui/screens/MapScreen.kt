@@ -1,20 +1,23 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.border
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,12 +27,6 @@ import com.example.gemini.GeminiApi
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
-
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.draw.drawBehind
 
 data class StadiumZone(val id: String, val name: String, val density: Float)
 
@@ -46,7 +43,7 @@ fun MapScreen(viewModel: MainViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .drawBehind {
-                val gridSize = 30.dp.toPx()
+                val gridSize = 40.dp.toPx()
                 val width = size.width
                 val height = size.height
                 val gridColor = ColorAiBlue.copy(alpha = 0.05f)
@@ -57,14 +54,14 @@ fun MapScreen(viewModel: MainViewModel) {
                     drawLine(gridColor, Offset(0f, y.toFloat()), Offset(width, y.toFloat()), strokeWidth = 1f)
                 }
             }
-            .padding(16.dp),
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Digital Twin", style = MaterialTheme.typography.titleMedium, color = TextSecondary)
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Stadium Map
-        StadiumMapLayout(state.gate7Density / 100f) { zone ->
+        StadiumMapLayout(state.gate7Density / 100f, selectedZone) { zone ->
             selectedZone = zone
             isAnalyzing = true
             zoneAnalysis = null
@@ -76,7 +73,7 @@ fun MapScreen(viewModel: MainViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         if (selectedZone != null) {
             Surface(
@@ -89,7 +86,7 @@ fun MapScreen(viewModel: MainViewModel) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.AutoAwesome, contentDescription = "AI", tint = ColorAiPurple)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(selectedZone!!.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+                        Text(selectedZone!!.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge, color = TextPrimary)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     
@@ -100,14 +97,14 @@ fun MapScreen(viewModel: MainViewModel) {
                         }
                         Column {
                             Text("Med Requests", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                            Text("0", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("0", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimary)
                         }
                         Column {
                             Text("Est. Exit", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                            Text(if(selectedZone!!.density > 0.8f) "14 min" else "4 min", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text(if(selectedZone!!.density > 0.8f) "14 min" else "4 min", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimary)
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                     
                     if (isAnalyzing) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -117,8 +114,8 @@ fun MapScreen(viewModel: MainViewModel) {
                         }
                     } else {
                         Text("AI Insight", color = ColorAiBlue, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(zoneAnalysis ?: "Could not fetch analysis.", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(zoneAnalysis ?: "Could not fetch analysis.", style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
                     }
                 }
             }
@@ -129,7 +126,7 @@ fun MapScreen(viewModel: MainViewModel) {
                 border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
                 shape = RoundedCornerShape(20.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Tap a stadium sector to view live telemetry and AI insights.", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, textAlign = TextAlign.Center)
                 }
             }
@@ -138,10 +135,10 @@ fun MapScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-fun StadiumMapLayout(gate7Density: Float, onZoneClick: (StadiumZone) -> Unit) {
+fun StadiumMapLayout(gate7Density: Float, selectedZone: StadiumZone?, onZoneClick: (StadiumZone) -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
+        initialValue = 0.98f,
         targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
             animation = tween(1500, easing = FastOutSlowInEasing),
@@ -171,10 +168,10 @@ fun StadiumMapLayout(gate7Density: Float, onZoneClick: (StadiumZone) -> Unit) {
                 .background(ColorSafe.copy(alpha = 0.05f), RoundedCornerShape(24.dp))
                 .drawBehind {
                     drawRoundRect(
-                        color = ColorSafe.copy(alpha = 0.3f),
+                        color = ColorSafe.copy(alpha = 0.2f),
                         size = size,
                         cornerRadius = CornerRadius(24.dp.toPx()),
-                        style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
+                        style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(15f, 15f), 0f))
                     )
                 },
             contentAlignment = Alignment.Center
@@ -184,7 +181,7 @@ fun StadiumMapLayout(gate7Density: Float, onZoneClick: (StadiumZone) -> Unit) {
                     .size(60.dp)
                     .drawBehind {
                         drawCircle(
-                            color = ColorSafe.copy(alpha = 0.3f),
+                            color = ColorSafe.copy(alpha = 0.2f),
                             radius = size.width / 2,
                             style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f))
                         )
@@ -196,7 +193,7 @@ fun StadiumMapLayout(gate7Density: Float, onZoneClick: (StadiumZone) -> Unit) {
                     .height(1.dp)
                     .drawBehind {
                         drawLine(
-                            color = ColorSafe.copy(alpha = 0.3f),
+                            color = ColorSafe.copy(alpha = 0.2f),
                             start = Offset(0f, 0f),
                             end = Offset(size.width, 0f),
                             strokeWidth = 1.dp.toPx(),
@@ -208,47 +205,47 @@ fun StadiumMapLayout(gate7Density: Float, onZoneClick: (StadiumZone) -> Unit) {
         }
 
         // North Stand
-        StadiumZoneBox(zones[0], Modifier.align(Alignment.TopCenter).fillMaxWidth(0.7f).height(60.dp), onZoneClick)
+        StadiumZoneBox(zones[0], Modifier.align(Alignment.TopCenter).fillMaxWidth(0.7f).height(60.dp), zones[0] == selectedZone, onZoneClick)
         
         // South Stand
-        StadiumZoneBox(zones[3], Modifier.align(Alignment.BottomCenter).fillMaxWidth(0.7f).height(60.dp), onZoneClick, scale = if (gate7Density > 0.8f) pulseScale else 1f)
+        StadiumZoneBox(zones[3], Modifier.align(Alignment.BottomCenter).fillMaxWidth(0.7f).height(60.dp), zones[3] == selectedZone, onZoneClick, scale = if (gate7Density > 0.8f) pulseScale else 1f)
         
         // West Stand
-        StadiumZoneBox(zones[1], Modifier.align(Alignment.CenterStart).fillMaxHeight(0.7f).width(60.dp), onZoneClick)
+        StadiumZoneBox(zones[1], Modifier.align(Alignment.CenterStart).fillMaxHeight(0.7f).width(60.dp), zones[1] == selectedZone, onZoneClick)
         
         // East Stand
-        StadiumZoneBox(zones[2], Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.7f).width(60.dp), onZoneClick)
+        StadiumZoneBox(zones[2], Modifier.align(Alignment.CenterEnd).fillMaxHeight(0.7f).width(60.dp), zones[2] == selectedZone, onZoneClick)
     }
 }
 
 @Composable
-fun StadiumZoneBox(zone: StadiumZone, modifier: Modifier, onClick: (StadiumZone) -> Unit, scale: Float = 1f) {
+fun StadiumZoneBox(zone: StadiumZone, modifier: Modifier, isSelected: Boolean, onClick: (StadiumZone) -> Unit, scale: Float = 1f) {
     val color = when {
         zone.density > 0.8f -> ColorCritical
         zone.density > 0.6f -> ColorAttention
         else -> ColorSafe
     }
     
-    val isHighlighted = scale > 1f
+    val isHighlighted = scale > 1f || isSelected
     
     Box(
         modifier = modifier
-            .background(color.copy(alpha = 0.15f * scale), RoundedCornerShape(16.dp))
+            .background(color.copy(alpha = if(isSelected) 0.25f else 0.15f * scale), RoundedCornerShape(16.dp))
             .then(
                 if (isHighlighted) {
                     Modifier.drawBehind {
                         drawRoundRect(
-                            color = color.copy(alpha = 0.3f),
+                            color = color.copy(alpha = 0.4f),
                             size = size,
                             cornerRadius = CornerRadius(16.dp.toPx())
                         )
                     }
                 } else Modifier
             )
-            .border(1.dp, color.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
+            .border(1.dp, color.copy(alpha = if(isSelected) 0.6f else 0.3f), RoundedCornerShape(16.dp))
             .clickable { onClick(zone) },
         contentAlignment = Alignment.Center
     ) {
-        Text(zone.id, color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+        Text(zone.id, color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)
     }
 }

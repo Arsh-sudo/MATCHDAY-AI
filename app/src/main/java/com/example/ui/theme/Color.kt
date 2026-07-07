@@ -32,3 +32,7 @@ val AiBubbleBg = Color(0xFF1E293B) // Dark gray surface
 
 val GlassBg = Color(0x0DFFFFFF) // rgba(255, 255, 255, 0.05)
 val GlassBorder = Color(0x1AFFFFFF) // rgba(255, 255, 255, 0.1)
+
+val ColorSafeDark = Color(0xFF022C22)
+val ColorAttentionDark = Color(0xFF451A03)
+val ColorCriticalDark = Color(0xFF4C0519)

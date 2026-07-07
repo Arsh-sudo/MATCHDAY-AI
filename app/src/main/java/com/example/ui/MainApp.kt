@@ -1,18 +1,16 @@
 package com.example.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.outlined.Analytics
-import androidx.compose.material.icons.outlined.Campaign
 import androidx.compose.material.icons.outlined.ChatBubble
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.*
@@ -20,14 +18,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.LiveDemoScreen
 import com.example.ui.screens.MapScreen
-import com.example.ui.screens.AlertsScreen
 import com.example.viewmodel.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.theme.*
@@ -37,112 +37,108 @@ import androidx.compose.animation.core.*
 @Composable
 fun MainApp(viewModel: MainViewModel = viewModel()) {
     var selectedTab by remember { mutableStateOf(0) }
-    var showClearConfirm by remember { mutableStateOf(false) }
     
-    if (showClearConfirm) {
-        AlertDialog(
-            onDismissRequest = { showClearConfirm = false },
-            title = { Text("Clear chat history?") },
-            text = { Text("This cannot be undone.") },
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearHistory(); showClearConfirm = false }) {
-                    Text("Clear")
+    Box(modifier = Modifier.fillMaxSize().background(BgMain)) {
+        // Pitch Background
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val strokeWidth = 1.dp.toPx()
+            val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+            val lineColor = GlassBorder.copy(alpha = 0.3f)
+            
+            // Center circle
+            drawCircle(lineColor, radius = size.width / 4, center = center, style = Stroke(strokeWidth, pathEffect = dashEffect))
+            // Center line
+            drawLine(lineColor, start = Offset(0f, size.height / 2), end = Offset(size.width, size.height / 2), strokeWidth = strokeWidth, pathEffect = dashEffect)
+        }
+
+        Scaffold(
+            modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
+            containerColor = Color.Transparent,
+            topBar = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("MATCHDAY AI", fontWeight = FontWeight.ExtraBold, color = TextPrimary, fontSize = 24.sp, letterSpacing = 0.5.sp)
+                            }
+                            Text("Powered by Gemini", color = ColorAiBlue, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        }
+                        
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("● LIVE", color = ColorSafe, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                Text("02:08 PM", color = TextSecondary, fontSize = 12.sp)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            GlowingIndicator()
+                        }
+                    }
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { showClearConfirm = false }) { Text("Cancel") }
-            }
-        )
-    }
-    
-    Scaffold(
-        modifier = Modifier.fillMaxSize().background(BgMain).windowInsetsPadding(WindowInsets.safeDrawing),
-        containerColor = Color.Transparent,
-        topBar = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("MATCHDAY AI", fontWeight = FontWeight.ExtraBold, color = TextPrimary, fontSize = 20.sp, letterSpacing = 1.sp)
-                        }
-                        Text("Powered by Gemini", color = ColorAiPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-                    
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text("LIVE", color = ColorSafe, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                            Text("02:08 PM", color = TextPrimary, fontSize = 12.sp)
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        GlowingIndicator()
+            bottomBar = {
+                // Floating Navigation
+                Box(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 24.dp), contentAlignment = Alignment.Center) {
+                    NavigationBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(Color(0xFF0F172A).copy(alpha = 0.85f))
+                            .border(1.dp, GlassBorder, RoundedCornerShape(32.dp)),
+                        containerColor = Color.Transparent,
+                        contentColor = TextPrimary,
+                        tonalElevation = 0.dp
+                    ) {
+                        NavigationBarItem(
+                            selected = selectedTab == 0,
+                            onClick = { selectedTab = 0 },
+                            icon = { Icon(if(selectedTab == 0) Icons.Filled.Analytics else Icons.Outlined.Analytics, contentDescription = "Dashboard") },
+                            label = { Text("Home", fontSize = 12.sp, fontWeight = if(selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = ColorAiBlue,
+                                unselectedIconColor = TextSecondary,
+                                indicatorColor = Color.Transparent
+                            )
+                        )
+                        NavigationBarItem(
+                            selected = selectedTab == 1,
+                            onClick = { selectedTab = 1 },
+                            icon = { Icon(if(selectedTab == 1) Icons.Filled.Map else Icons.Outlined.Map, contentDescription = "Map") },
+                            label = { Text("Stadium", fontSize = 12.sp, fontWeight = if(selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = ColorAiBlue,
+                                unselectedIconColor = TextSecondary,
+                                indicatorColor = Color.Transparent
+                            )
+                        )
+                        NavigationBarItem(
+                            selected = selectedTab == 2,
+                            onClick = { selectedTab = 2 },
+                            icon = { Icon(if(selectedTab == 2) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubble, contentDescription = "AI") },
+                            label = { Text("AI Copilot", fontSize = 12.sp, fontWeight = if(selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = ColorAiPurple,
+                                unselectedIconColor = TextSecondary,
+                                indicatorColor = Color.Transparent
+                            )
+                        )
                     }
                 }
             }
-        },
-        bottomBar = {
-            // Floating Navigation
-            Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                NavigationBar(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .clip(CircleShape)
-                        .background(GlassBg)
-                        .border(1.dp, GlassBorder, CircleShape),
-                    containerColor = Color.Transparent,
-                    contentColor = TextPrimary,
-                    tonalElevation = 0.dp
-                ) {
-                    NavigationBarItem(
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
-                        icon = { Icon(if(selectedTab == 0) Icons.Filled.Analytics else Icons.Outlined.Analytics, contentDescription = "Dashboard") },
-                        label = { if(selectedTab == 0) Text("Home", fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = ColorAiBlue,
-                            unselectedIconColor = TextSecondary,
-                            indicatorColor = Color.Transparent
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        icon = { Icon(if(selectedTab == 1) Icons.Filled.Map else Icons.Outlined.Map, contentDescription = "Map") },
-                        label = { if(selectedTab == 1) Text("Stadium", fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = ColorAiBlue,
-                            unselectedIconColor = TextSecondary,
-                            indicatorColor = Color.Transparent
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = selectedTab == 2,
-                        onClick = { selectedTab = 2 },
-                        icon = { Icon(if(selectedTab == 2) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubble, contentDescription = "AI") },
-                        label = { if(selectedTab == 2) Text("AI Copilot", fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = ColorAiPurple,
-                            unselectedIconColor = TextSecondary,
-                            indicatorColor = Color.Transparent
-                        )
-                    )
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                when (selectedTab) {
+                    0 -> DashboardScreen(viewModel)
+                    1 -> MapScreen(viewModel)
+                    2 -> LiveDemoScreen(viewModel)
                 }
-            }
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(BgMain)
-                .padding(paddingValues)
-        ) {
-            when (selectedTab) {
-                0 -> DashboardScreen(viewModel)
-                1 -> MapScreen(viewModel)
-                2 -> LiveDemoScreen(viewModel)
             }
         }
     }
@@ -160,8 +156,9 @@ fun GlowingIndicator() {
         ), label = "pulse_alpha"
     )
 
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(16.dp)) {
-        Box(modifier = Modifier.size(16.dp).clip(CircleShape).background(ColorSafe.copy(alpha = alpha * 0.4f)))
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(20.dp)) {
+        Box(modifier = Modifier.size(20.dp).clip(CircleShape).background(ColorSafeDark))
+        Box(modifier = Modifier.size(14.dp).clip(CircleShape).background(ColorSafe.copy(alpha = alpha * 0.4f)))
         Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(ColorSafe))
     }
 }
