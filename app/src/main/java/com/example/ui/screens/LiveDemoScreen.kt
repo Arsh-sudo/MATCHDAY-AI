@@ -45,6 +45,8 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val typingStatus by viewModel.typingStatus.collectAsStateWithLifecycle()
+    val currentRoleState by viewModel.currentRole.collectAsStateWithLifecycle()
+    val currentLanguageState by viewModel.currentLanguage.collectAsStateWithLifecycle()
     
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -125,7 +127,97 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        // Role & Language Dropdowns Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var showRoleMenu by remember { mutableStateOf(false) }
+            var showLangMenu by remember { mutableStateOf(false) }
+
+            // Role Selector Pill
+            Box(modifier = Modifier.weight(1f)) {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showRoleMenu = true }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("PERSONA", fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
+                            Text(currentRoleState, fontSize = 12.sp, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                        }
+                        Text("▾", color = TextSecondary, fontSize = 14.sp)
+                    }
+                }
+                DropdownMenu(
+                    expanded = showRoleMenu,
+                    onDismissRequest = { showRoleMenu = false },
+                    modifier = Modifier.background(Color(0xFF1E293B))
+                ) {
+                    listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
+                        DropdownMenuItem(
+                            text = { Text(role, color = TextPrimary) },
+                            onClick = {
+                                viewModel.setRole(role)
+                                showRoleMenu = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Language Selector Pill
+            Box(modifier = Modifier.weight(1f)) {
+                Surface(
+                    color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showLangMenu = true }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("LANGUAGE", fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
+                            Text(currentLanguageState, fontSize = 12.sp, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                        }
+                        Text("▾", color = TextSecondary, fontSize = 14.sp)
+                    }
+                }
+                DropdownMenu(
+                    expanded = showLangMenu,
+                    onDismissRequest = { showLangMenu = false },
+                    modifier = Modifier.background(Color(0xFF1E293B))
+                ) {
+                    listOf("English", "Español", "Português", "Français").forEach { lang ->
+                        DropdownMenuItem(
+                            text = { Text(lang, color = TextPrimary) },
+                            onClick = {
+                                viewModel.setLanguage(lang)
+                                showLangMenu = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
         
         // 2. Scrollable Messages View
         LazyColumn(

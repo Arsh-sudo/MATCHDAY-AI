@@ -285,13 +285,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             delay(800)
             _typingStatus.value = "Generating response..."
             
+            val state = _dashboardState.value
             val systemInstruction = """
                 You are MATCHDAY AI, the Unified GenAI Operations Brain for FIFA World Cup 2026.
-                You manage 16 host cities, 3 countries, and massive scale operations.
+                You manage 16 host cities, 3 countries (Mexico, USA, Canada), and massive scale tournament operations.
                 Your current user role is: ${_currentRole.value}.
                 You MUST respond in the following language: ${_currentLanguage.value}.
-                Provide intelligent, proactive, and concise responses tailored to the role.
-                If asked about congestion, you know Gate 7 has a projected halftime surge, and transit Hub A is flowing.
+                
+                REAL-TIME STADIUM SNAPSHOT:
+                - Match: Mexico vs Brazil, Current Score: Mex ${state.mexScore} - ${state.braScore} Bra, Minute: ${state.matchMinutes}'
+                - Attendance: ${state.attendance} / 62,300 fans
+                - Overall Crowd Density: ${state.gate7Density}%
+                - Active Incidents: ${state.activeIncidentsCount} (If > 0, Gate 7 has High Density & an active critical alert requiring deployment)
+                - Active Volunteers: ${state.volunteersActive}
+                - Gate 7 Halftime Surge Projection: ${state.surgeMinutes} mins
+                - Transit Wait Time: ${state.transitWaitMins} mins
+                - Parking Fill: ${state.parkingFill}%
+                - Stadium Weather: ${state.temperature}°C, ${state.humidity}% Humidity
+                
+                INSTRUCTIONS:
+                1. Provide highly intelligent, proactive, and concise responses tailored directly to the user's role (${_currentRole.value}).
+                2. Answer queries by referencing the actual real-time numbers in the STADIUM SNAPSHOT above. Be realistic, helpful, and authoritative.
+                3. Keep answers concise (max 3-4 sentences) so they are easily readable on mobile screens by busy operators.
+                4. Suggest actionable next steps (e.g., dispatching volunteers, notifying transit hubs) when densities are high or incidents are active.
             """.trimIndent()
             
             val recentMessages = messages.value.takeLast(9)
