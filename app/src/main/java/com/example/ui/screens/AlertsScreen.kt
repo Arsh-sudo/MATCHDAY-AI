@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.example.gemini.GeminiApi
 import kotlinx.coroutines.launch
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+
 @Composable
 fun AlertsScreen() {
     var alertText by remember { mutableStateOf("") }
@@ -22,8 +25,8 @@ fun AlertsScreen() {
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text("Multilingual Announcements", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
@@ -61,7 +64,7 @@ fun AlertsScreen() {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else if (translatedAlerts != null) {
             Card(
-                modifier = Modifier.fillMaxWidth().weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
             ) {

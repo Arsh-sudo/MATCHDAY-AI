@@ -1,6 +1,8 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -8,126 +10,70 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.viewmodel.MainViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.viewmodel.MainViewModel
+import com.example.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiveDemoScreen(viewModel: MainViewModel) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val currentRole by viewModel.currentRole.collectAsStateWithLifecycle()
-    val currentLanguage by viewModel.currentLanguage.collectAsStateWithLifecycle()
+    val typingStatus by viewModel.typingStatus.collectAsStateWithLifecycle()
     
     var textState by remember { mutableStateOf("") }
     
-    var roleExpanded by remember { mutableStateOf(false) }
-    val roles = listOf("Fan", "Operations Staff", "Volunteer", "Accessibility")
-    
-    var langExpanded by remember { mutableStateOf(false) }
-    val languages = listOf("English", "Spanish", "French", "Arabic", "Portuguese", "Japanese")
-
-    val quickPrompts = when(currentRole) {
-        "Fan" -> listOf("Where is Gate 7?", "Where can I find food?", "How do I get to transit Hub A?")
-        "Operations Staff" -> listOf("What is the status of Gate 7?", "Are there any predicted surges?", "Deploy volunteers to Gate 3.")
-        "Volunteer" -> listOf("Where am I needed?", "How to help disabled fans?", "Where are the nearest restrooms?")
-        "Accessibility" -> listOf("Where are the elevators?", "Need wheelchair assistance", "Accessible routes to seating")
-        else -> emptyList()
-    }
+    val quickPrompts = listOf(
+        "Show Crowd", "Traffic Status", "Medical Emergencies", 
+        "Open Incidents", "Security Risks", "Volunteer Allocation"
+    )
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Settings Row
+        // Top AI branding
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Role Dropdown
-            ExposedDropdownMenuBox(
-                expanded = roleExpanded,
-                onExpandedChange = { roleExpanded = !roleExpanded },
-                modifier = Modifier.weight(1f).padding(end = 4.dp)
-            ) {
-                OutlinedTextField(
-                    value = currentRole,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Role Context") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleExpanded) },
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                )
-                ExposedDropdownMenu(
-                    expanded = roleExpanded,
-                    onDismissRequest = { roleExpanded = false }
-                ) {
-                    roles.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                viewModel.setRole(selectionOption)
-                                roleExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // Language Dropdown
-            ExposedDropdownMenuBox(
-                expanded = langExpanded,
-                onExpandedChange = { langExpanded = !langExpanded },
-                modifier = Modifier.weight(1f).padding(start = 4.dp)
-            ) {
-                OutlinedTextField(
-                    value = currentLanguage,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Language") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = langExpanded) },
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                )
-                ExposedDropdownMenu(
-                    expanded = langExpanded,
-                    onDismissRequest = { langExpanded = false }
-                ) {
-                    languages.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                viewModel.setLanguage(selectionOption)
-                                langExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
+            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorAiPurple)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Gemini Operations Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = ColorAiBlue)
         }
-        
+
         // Chat Area
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(vertical = 8.dp),
             reverseLayout = true
         ) {
-            if (isLoading) {
+            if (isLoading && typingStatus.isNotBlank()) {
                 item {
-                    Box(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
-                        contentAlignment = Alignment.CenterStart
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.Start
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = GlassBg,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder)
+                        ) {
+                            Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = ColorAiPurple)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(typingStatus, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                            }
+                        }
                     }
                 }
             }
@@ -135,28 +81,33 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 6.dp),
                     horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
                 ) {
                     Box(
                         modifier = Modifier
-                            .widthIn(max = 300.dp)
+                            .widthIn(max = 320.dp)
                             .background(
                                 color = when {
                                     message.isError -> MaterialTheme.colorScheme.errorContainer
-                                    message.isUser -> MaterialTheme.colorScheme.primaryContainer
-                                    else -> MaterialTheme.colorScheme.secondaryContainer
+                                    message.isUser -> UserBubbleBg
+                                    else -> GlassBg
                                 },
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(20.dp)
                             )
-                            .padding(12.dp)
+                            .then(
+                                if (!message.isUser && !message.isError) {
+                                    Modifier.border(1.dp, GlassBorder, RoundedCornerShape(20.dp))
+                                } else Modifier
+                            )
+                            .padding(16.dp)
                     ) {
                         Text(
                             text = message.text,
                             color = when {
                                 message.isError -> MaterialTheme.colorScheme.onErrorContainer
-                                message.isUser -> MaterialTheme.colorScheme.onPrimaryContainer
-                                else -> MaterialTheme.colorScheme.onSecondaryContainer
+                                message.isUser -> UserBubbleText
+                                else -> TextPrimary
                             }
                         )
                     }
@@ -166,17 +117,19 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
         
         // Quick Prompts
         LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(quickPrompts) { prompt ->
-                FilterChip(
-                    selected = false,
-                    onClick = {
-                        viewModel.sendMessage(prompt)
-                    },
+                AssistChip(
+                    onClick = { viewModel.sendMessage(prompt) },
                     label = { Text(prompt) },
-                    enabled = !isLoading
+                    enabled = !isLoading,
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = GlassBg,
+                        labelColor = TextPrimary
+                    ),
+                    border = AssistChipDefaults.assistChipBorder(borderColor = GlassBorder, enabled = true)
                 )
             }
         }
@@ -185,7 +138,7 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
@@ -194,9 +147,15 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
                 modifier = Modifier.weight(1f),
                 placeholder = { Text("Ask MATCHDAY AI...") },
                 shape = RoundedCornerShape(24.dp),
-                enabled = !isLoading
+                enabled = !isLoading,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = BgCardSecondary,
+                    unfocusedContainerColor = BgCardSecondary,
+                    focusedBorderColor = ColorAiBlue,
+                    unfocusedBorderColor = BorderColor
+                )
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             FloatingActionButton(
                 onClick = {
                     if (!isLoading && textState.isNotBlank()) {
@@ -204,9 +163,16 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
                         textState = ""
                     }
                 },
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier.size(56.dp),
+                containerColor = Color.Transparent,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp)
             ) {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send")
+                Box(modifier = Modifier.fillMaxSize().background(
+                    Brush.linearGradient(listOf(ColorAiGradientStart, ColorAiGradientEnd)),
+                    shape = RoundedCornerShape(28.dp)
+                ), contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = Color.White)
+                }
             }
         }
     }

@@ -24,9 +24,15 @@ data class ChatMessage(
 )
 
 data class DashboardState(
-    val gate7Density: Int = 85,
+    val gate7Density: Int = 88,
     val volunteersActive: Int = 42,
-    val surgeMinutes: Int = 12
+    val surgeMinutes: Int = 6,
+    val transitWaitMins: Int = 5,
+    val parkingFill: Int = 72,
+    val attendance: Int = 58214,
+    val temperature: Int = 28,
+    val humidity: Int = 72,
+    val aiScore: Int = 97
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -40,6 +46,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    private val _typingStatus = MutableStateFlow("")
+    val typingStatus: StateFlow<String> = _typingStatus.asStateFlow()
 
     private val _currentRole = MutableStateFlow("Operations Staff")
     val currentRole: StateFlow<String> = _currentRole.asStateFlow()
@@ -52,26 +61,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            // Check if we need to insert initial welcome message
-            var isInitialized = false
-            dao.getAllMessages().collect { msgs ->
-                if (!isInitialized) {
-                    if (msgs.isEmpty()) {
-                        dao.insertMessage(ChatMessageEntity(text = "Welcome to MATCHDAY AI. I am the Unified GenAI Operations Brain for FIFA World Cup 2026. How can I assist you?", isUser = false))
-                    }
-                    isInitialized = true
-                }
+            val count = dao.getMessageCount()
+            if (count == 0) {
+                dao.insertMessage(ChatMessageEntity(text = "Hello Operations Staff 👋\n\nI am MATCHDAY AI.\nConnected to:\n✓ CCTV\n✓ Crowd Sensors\n✓ Transit APIs\n✓ Weather\n✓ Medical Teams\n\nAsk anything.", isUser = false))
             }
         }
         
-        // Feature 1: Simulate Live Data for Dashboard
         viewModelScope.launch {
             while (true) {
                 delay(5000)
+                val currentSurge = _dashboardState.value.surgeMinutes
+                val nextSurge = if (currentSurge <= 1) (8..15).random() else maxOf(0, currentSurge - if (Math.random() > 0.5) 1 else 0)
                 _dashboardState.value = DashboardState(
                     gate7Density = (75..95).random(),
                     volunteersActive = (38..45).random(),
-                    surgeMinutes = maxOf(1, _dashboardState.value.surgeMinutes - if (Math.random() > 0.5) 1 else 0)
+                    surgeMinutes = nextSurge,
+                    transitWaitMins = (1..10).random(),
+                    parkingFill = (60..90).random(),
+                    attendance = _dashboardState.value.attendance + (0..10).random(),
+                    temperature = _dashboardState.value.temperature,
+                    humidity = _dashboardState.value.humidity,
+                    aiScore = (94..99).random()
                 )
             }
         }
@@ -91,9 +101,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _isLoading.value = true
             
-            // Save user message
             dao.insertMessage(ChatMessageEntity(text = text, isUser = true))
 
+            _typingStatus.value = "Analyzing CCTV..."
+            delay(800)
+            _typingStatus.value = "Reading sensor feeds..."
+            delay(800)
+            _typingStatus.value = "Predicting congestion..."
+            delay(800)
+            _typingStatus.value = "Generating response..."
+            
             val systemInstruction = """
                 You are MATCHDAY AI, the Unified GenAI Operations Brain for FIFA World Cup 2026.
                 You manage 16 host cities, 3 countries, and massive scale operations.
@@ -103,28 +120,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 If asked about congestion, you know Gate 7 has a projected halftime surge, and transit Hub A is flowing.
             """.trimIndent()
             
-            // Build conversation history (capped to last 10 for Bug 5)
-            val recentMessages = messages.value.takeLast(10)
+            val recentMessages = messages.value.takeLast(9)
             val history = recentMessages.joinToString("\n") { 
                 if (it.isUser) "User: ${it.text}" else "AI: ${it.text}" 
             }
-            val prompt = "Conversation History:\n$history\n\nNew User message: $text"
+            val prompt = "Conversation History:\n$history\nUser: $text"
 
             val responseText = GeminiApi.generateContent(prompt, systemInstruction)
             
             val isError = responseText.startsWith("Error connecting to AI")
             
-            // Save AI response
             dao.insertMessage(ChatMessageEntity(text = responseText, isUser = false, isError = isError))
             
             _isLoading.value = false
+            _typingStatus.value = ""
         }
     }
     
     fun clearHistory() {
         viewModelScope.launch {
             dao.clearMessages()
-            dao.insertMessage(ChatMessageEntity(text = "Welcome to MATCHDAY AI. I am the Unified GenAI Operations Brain for FIFA World Cup 2026. How can I assist you?", isUser = false))
+            dao.insertMessage(ChatMessageEntity(text = "Hello Operations Staff 👋\n\nI am MATCHDAY AI.\nConnected to:\n✓ CCTV\n✓ Crowd Sensors\n✓ Transit APIs\n✓ Weather\n✓ Medical Teams\n\nAsk anything.", isUser = false))
         }
     }
 }

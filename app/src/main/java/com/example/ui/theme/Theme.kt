@@ -1,7 +1,5 @@
 package com.example.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -10,31 +8,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-private val ElegantDarkColorScheme = darkColorScheme(
+private val OperationalDarkColorScheme = darkColorScheme(
     primary = AccentLight,
-    onPrimary = AccentDark,
-    primaryContainer = AccentLight,
-    onPrimaryContainer = AccentDark,
-    secondary = BgCardSecondary,
-    onSecondary = TextPrimary,
-    secondaryContainer = BgCard,
+    onPrimary = Color.Black,
+    primaryContainer = ColorAiBlue,
+    onPrimaryContainer = Color.White,
+    secondary = ColorAiPurple,
+    onSecondary = Color.White,
+    secondaryContainer = BgCardSecondary,
     onSecondaryContainer = TextPrimary,
     background = BgMain,
     onBackground = TextPrimary,
     surface = BgCard,
     onSurface = TextPrimary,
-    surfaceVariant = BgCardSecondary,
+    surfaceVariant = GlassBg,
     onSurfaceVariant = TextPrimary,
     outline = BorderColor,
-    outlineVariant = BorderColor,
-    error = Color(0xFFCF6679),
-    onError = Color.Black
+    outlineVariant = GlassBorder,
+    error = ColorCritical,
+    onError = Color.White,
+    errorContainer = Color(0xFF450a0a),
+    onErrorContainer = Color(0xFFfca5a5)
 )
 
 private val AppShapes = Shapes(
     small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(24.dp),
-    large = RoundedCornerShape(28.dp)
+    medium = RoundedCornerShape(20.dp), // Requested 20px rounded corners
+    large = RoundedCornerShape(24.dp)
 )
 
 @Composable
@@ -44,7 +44,7 @@ fun MyApplicationTheme(
   content: @Composable () -> Unit,
 ) {
   MaterialTheme(
-      colorScheme = ElegantDarkColorScheme,
+      colorScheme = OperationalDarkColorScheme,
       typography = Typography,
       shapes = AppShapes,
       content = content
