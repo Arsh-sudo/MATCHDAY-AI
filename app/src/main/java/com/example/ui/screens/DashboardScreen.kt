@@ -32,6 +32,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Sensors
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.Speed
 
 @Composable
 fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
@@ -101,6 +104,11 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                     Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
                 }
             }
+        }
+
+        // Real-Time Telemetry Card
+        item {
+            TelemetryCard(viewModel = viewModel)
         }
 
         if (loggedInUserType == "fan") {
@@ -557,6 +565,208 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
                 color = subValueColor,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+fun TelemetryCard(viewModel: MainViewModel) {
+    val useRealSensors by viewModel.useRealSensors.collectAsStateWithLifecycle()
+    val liveLightLux by viewModel.liveLightLux.collectAsStateWithLifecycle()
+    val livePressureHpa by viewModel.livePressureHpa.collectAsStateWithLifecycle()
+    val liveVibrationMagnitude by viewModel.liveVibrationMagnitude.collectAsStateWithLifecycle()
+
+    val hasLightSensor by viewModel.hasLightSensor.collectAsStateWithLifecycle()
+    val hasPressureSensor by viewModel.hasPressureSensor.collectAsStateWithLifecycle()
+    val hasAccelerometer by viewModel.hasAccelerometer.collectAsStateWithLifecycle()
+
+    val diff = (liveVibrationMagnitude - 9.81f).coerceAtLeast(0f)
+    val cheeringIndex = (diff * 15f).coerceIn(0f, 100f).toInt()
+
+    Surface(
+        color = Color(0xFF1E293B).copy(alpha = 0.85f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Sensors,
+                        contentDescription = "Sensors",
+                        tint = ColorAiBlue,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "LIVE DEVICE TELEMETRY",
+                        color = TextPrimary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                }
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                    val alpha by infiniteTransition.animateFloat(
+                        initialValue = 0.3f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(1000, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "pulseAlpha"
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(ColorSafe.copy(alpha = alpha))
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (useRealSensors) "HARDWARE ACTIVE" else "PAUSED",
+                        color = if (useRealSensors) ColorSafe else TextSecondary,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Show real-time readings from your device's built-in sensors instead of stadium simulations.",
+                color = TextSecondary,
+                fontSize = 11.sp,
+                lineHeight = 16.sp
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF0F172A).copy(alpha = 0.5f))
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Stream Hardware Telemetry",
+                    color = TextPrimary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Switch(
+                    checked = useRealSensors,
+                    onCheckedChange = { viewModel.setUseRealSensors(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = ColorSafe,
+                        checkedTrackColor = ColorSafe.copy(alpha = 0.3f),
+                        uncheckedThumbColor = TextSecondary,
+                        uncheckedTrackColor = Color(0xFF1E293B)
+                    )
+                )
+            }
+
+            if (useRealSensors) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TelemetryStatItem(
+                        title = "FAN CHEERING",
+                        value = if (hasAccelerometer) "$cheeringIndex%" else "Offline",
+                        subValue = if (!hasAccelerometer) "No Accelerometer" else if (cheeringIndex > 15) "SHAKING! 🎉" else "STABLE 💺",
+                        icon = Icons.Default.Sensors,
+                        iconColor = ColorAiPurple,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    TelemetryStatItem(
+                        title = "ILLUM.",
+                        value = if (hasLightSensor) "${liveLightLux.toInt()} lx" else "Offline",
+                        subValue = if (!hasLightSensor) "No Light Sensor" else if (liveLightLux > 120) "BRIGHT 💡" else "DIM LIGHTS 🌑",
+                        icon = Icons.Default.WbSunny,
+                        iconColor = Color(0xFFFBBF24),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    TelemetryStatItem(
+                        title = "AZTECA ALT.",
+                        value = if (hasPressureSensor) "${livePressureHpa.toInt()} hPa" else "Offline",
+                        subValue = if (!hasPressureSensor) "No Barometer" else if (livePressureHpa < 850) "HIGH CDMX ALT ⛰️" else "STANDARD PRESS 🌊",
+                        icon = Icons.Default.Speed,
+                        iconColor = ColorAiBlue,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TelemetryStatItem(
+    title: String,
+    value: String,
+    subValue: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        color = Color(0xFF0F172A).copy(alpha = 0.7f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.height(108.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = title,
+                color = TextSecondary,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+            
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(16.dp))
+                Text(
+                    text = value,
+                    color = TextPrimary,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1
+                )
+            }
+            
+            Text(
+                text = subValue,
+                color = if (value != "Offline") iconColor else TextSecondary,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
         }

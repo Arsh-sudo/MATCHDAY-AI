@@ -1,6 +1,11 @@
 package com.example.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.AppDatabase
@@ -56,6 +61,82 @@ data class DashboardState(
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).chatMessageDao()
+
+    private val sensorManager = application.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+
+    private val _useRealSensors = MutableStateFlow(true)
+    val useRealSensors: StateFlow<Boolean> = _useRealSensors.asStateFlow()
+
+    private val _liveLightLux = MutableStateFlow(0f)
+    val liveLightLux: StateFlow<Float> = _liveLightLux.asStateFlow()
+
+    private val _livePressureHpa = MutableStateFlow(0f)
+    val livePressureHpa: StateFlow<Float> = _livePressureHpa.asStateFlow()
+
+    private val _liveVibrationMagnitude = MutableStateFlow(0f)
+    val liveVibrationMagnitude: StateFlow<Float> = _liveVibrationMagnitude.asStateFlow()
+
+    private val _hasLightSensor = MutableStateFlow(false)
+    val hasLightSensor: StateFlow<Boolean> = _hasLightSensor.asStateFlow()
+
+    private val _hasPressureSensor = MutableStateFlow(false)
+    val hasPressureSensor: StateFlow<Boolean> = _hasPressureSensor.asStateFlow()
+
+    private val _hasAccelerometer = MutableStateFlow(false)
+    val hasAccelerometer: StateFlow<Boolean> = _hasAccelerometer.asStateFlow()
+
+    private val sensorListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent?) {
+            if (event == null) return
+            when (event.sensor.type) {
+                Sensor.TYPE_LIGHT -> {
+                    _liveLightLux.value = event.values[0]
+                }
+                Sensor.TYPE_PRESSURE -> {
+                    _livePressureHpa.value = event.values[0]
+                }
+                Sensor.TYPE_ACCELEROMETER -> {
+                    val x = event.values[0]
+                    val y = event.values[1]
+                    val z = event.values[2]
+                    val mag = Math.sqrt((x * x + y * y + z * z).toDouble()).toFloat()
+                    _liveVibrationMagnitude.value = mag
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    private fun registerSensors() {
+        val manager = sensorManager ?: return
+        
+        val lightSensor = manager.getDefaultSensor(Sensor.TYPE_LIGHT)
+        if (lightSensor != null) {
+            _hasLightSensor.value = true
+            manager.registerListener(sensorListener, lightSensor, SensorManager.SENSOR_DELAY_UI)
+        }
+        
+        val pressureSensor = manager.getDefaultSensor(Sensor.TYPE_PRESSURE)
+        if (pressureSensor != null) {
+            _hasPressureSensor.value = true
+            manager.registerListener(sensorListener, pressureSensor, SensorManager.SENSOR_DELAY_UI)
+        }
+        
+        val accel = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        if (accel != null) {
+            _hasAccelerometer.value = true
+            manager.registerListener(sensorListener, accel, SensorManager.SENSOR_DELAY_UI)
+        }
+    }
+
+    private fun unregisterSensors() {
+        sensorManager?.unregisterListener(sensorListener)
+    }
+
+    fun setUseRealSensors(enabled: Boolean) {
+        _useRealSensors.value = enabled
+    }
 
     val messages: StateFlow<List<ChatMessage>> = dao.getAllMessages()
         .map { entities ->
@@ -211,6 +292,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     init {
+        registerSensors()
         // Initialize gates
         val initVal = _dashboardState.value
         _dashboardState.value = initVal.copy(
@@ -440,5 +522,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             activeIncidentsCount = 0,
             gates = generateDefaultGates(resolvedSurge, resolvedGate7Density, resolvedVolunteers, 0)
         )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        unregisterSensors()
     }
 }
