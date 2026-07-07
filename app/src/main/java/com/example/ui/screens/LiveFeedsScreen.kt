@@ -22,11 +22,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
 
 @Composable
 fun LiveFeedsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+    val state by viewModel.dashboardState.collectAsStateWithLifecycle()
+
+    val gate7Status = if (state.activeIncidentsCount > 0) "High Density" else if (state.gate7Density >= 60) "Moderate" else "Normal"
+    val gate7Color = if (state.activeIncidentsCount > 0) ColorCritical else if (state.gate7Density >= 60) ColorAttention else ColorSafe
+
+    val parkingStatus = if (state.activeIncidentsCount > 0) "High Density" else "Normal"
+    val parkingColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,58 +68,125 @@ fun LiveFeedsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            item { FeedCard("Gate 7", "High Density", ColorCritical, true) }
-            item { FeedCard("Gate 3", "Normal", ColorSafe, false) }
-            item { FeedCard("North Concourse", "Moderate", ColorAttention, true) }
-            item { FeedCard("South Entrance", "Normal", ColorSafe, false) }
-            item { FeedCard("Parking A", "High Density", ColorCritical, true) }
-            item { FeedCard("Metro Station", "Normal", ColorSafe, false) }
+            item { FeedCard("Gate 7", gate7Status, gate7Color, com.example.R.drawable.img_cctv_gate7_1783444051163) }
+            item { FeedCard("Gate 3", "Normal", ColorSafe, com.example.R.drawable.img_cctv_gate3_1783444067059) }
+            item { FeedCard("North Concourse", "Moderate", ColorAttention, com.example.R.drawable.img_cctv_concourse_1783444082961) }
+            item { FeedCard("South Entrance", "Normal", ColorSafe, com.example.R.drawable.img_cctv_gate7_1783444051163) }
+            item { FeedCard("Parking A", parkingStatus, parkingColor, com.example.R.drawable.img_cctv_concourse_1783444082961) }
+            item { FeedCard("Metro Station", "Normal", ColorSafe, com.example.R.drawable.img_cctv_metro_1783444098594) }
         }
     }
 }
 
 @Composable
-fun FeedCard(title: String, status: String, statusColor: Color, isLiveAlert: Boolean) {
+fun FeedCard(title: String, status: String, statusColor: Color, imageResId: Int) {
     Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        color = Color(0xFF1E293B).copy(alpha = 0.4f),
         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.aspectRatio(0.8f)
+        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Placeholder for camera feed image
-            Box(
-                modifier = Modifier.fillMaxSize().background(Color(0xFF0F172A))
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Top Row: Title & Live indicator
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Diagonal lines pattern for tech feel
+                Text(
+                    text = title,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(ColorCritical)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "LIVE",
+                        color = ColorCritical,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp
+                    )
+                }
             }
 
-            // Dark gradient at bottom for text readability
+            // Image box with internal LIVE badge
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(80.dp)
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF07090F))))
-            )
+                    .aspectRatio(1.2f)
+                    .clip(RoundedCornerShape(16.dp))
+            ) {
+                Image(
+                    painter = androidx.compose.ui.res.painterResource(id = imageResId),
+                    contentDescription = "$title Live Feed",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
 
-            Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(title, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                // Translucent Overlay "LIVE" Badge inside Image
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                        .border(0.5.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .align(Alignment.TopStart)
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(ColorCritical))
+                        Box(
+                            modifier = Modifier
+                                .size(5.dp)
+                                .clip(CircleShape)
+                                .background(ColorCritical)
+                        )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("LIVE", color = ColorCritical, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "LIVE",
+                            color = Color.White,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
-                
-                Spacer(modifier = Modifier.weight(1f))
-                
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(statusColor))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(status, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+
+            // Bottom row: Status badge
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(statusColor.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(statusColor)
+                    )
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = status,
+                    color = statusColor,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

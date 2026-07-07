@@ -4,7 +4,12 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,7 +29,7 @@ import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
 
 @Composable
-fun DashboardScreen(viewModel: MainViewModel) {
+fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
     val state by viewModel.dashboardState.collectAsStateWithLifecycle()
 
     LazyColumn(
@@ -83,7 +88,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("72'", color = ColorSafe, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("${state.matchMinutes}'", color = ColorSafe, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
                 }
             }
@@ -101,10 +106,14 @@ fun DashboardScreen(viewModel: MainViewModel) {
                     Column {
                         Text("AI STADIUM SCORE", color = ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                         Row(verticalAlignment = Alignment.Bottom) {
-                            Text("98", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                            Text(state.aiScore.toString(), color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
                             Text("/100", color = TextSecondary, fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp))
                         }
-                        Text("Everything operating smoothly", color = TextSecondary, fontSize = 12.sp)
+                        Text(
+                            if (state.activeIncidentsCount > 0) "Minor gate congestion detected" else "Everything operating smoothly", 
+                            color = TextSecondary, 
+                            fontSize = 12.sp
+                        )
                     }
                     // Mini graph
                     Box(modifier = Modifier.width(80.dp).height(40.dp)) {
@@ -127,7 +136,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
                     title = "ATTENDANCE",
                     icon = Icons.Default.Group,
                     iconColor = ColorAiBlue,
-                    value = "58,225",
+                    value = String.format("%,d", state.attendance),
                     subValue = "+4.3%",
                     subValueColor = ColorSafe,
                     modifier = Modifier.weight(1f)
@@ -135,20 +144,21 @@ fun DashboardScreen(viewModel: MainViewModel) {
                 StatCard(
                     title = "CROWD DENSITY",
                     icon = null,
-                    iconColor = ColorSafe,
-                    value = "80%",
-                    subValue = "NORMAL",
-                    subValueColor = ColorSafe,
+                    iconColor = if (state.gate7Density >= 80) ColorCritical else if (state.gate7Density >= 50) ColorAttention else ColorSafe,
+                    value = "${state.gate7Density}%",
+                    subValue = if (state.gate7Density >= 80) "HIGH" else if (state.gate7Density >= 50) "MODERATE" else "NORMAL",
+                    subValueColor = if (state.gate7Density >= 80) ColorCritical else if (state.gate7Density >= 50) ColorAttention else ColorSafe,
                     isCircular = true,
+                    progress = state.gate7Density / 100f,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     title = "INCIDENTS",
                     icon = Icons.Default.Warning,
-                    iconColor = ColorCritical,
-                    value = "1",
-                    subValue = "ACTIVE",
-                    subValueColor = ColorCritical,
+                    iconColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe,
+                    value = state.activeIncidentsCount.toString(),
+                    subValue = if (state.activeIncidentsCount > 0) "ACTIVE" else "SECURE",
+                    subValueColor = if (state.activeIncidentsCount > 0) ColorCritical else ColorSafe,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -156,22 +166,141 @@ fun DashboardScreen(viewModel: MainViewModel) {
 
         // AI Prediction
         item {
+            val isIncident = state.activeIncidentsCount > 0
+            val cardBorder = if (isIncident) ColorCritical.copy(alpha = 0.3f) else ColorSafe.copy(alpha = 0.3f)
+            val radialColor = if (isIncident) ColorCriticalDark.copy(alpha = 0.5f) else ColorSafeDark.copy(alpha = 0.3f)
+            
             Surface(
                 color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, ColorCritical.copy(alpha = 0.3f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
             ) {
-                Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(ColorCriticalDark.copy(alpha = 0.5f), Color.Transparent), radius = 500f))) {
+                Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(radialColor, Color.Transparent), radius = 500f))) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("AI PREDICTION", color = ColorCritical, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                            Text("AI PREDICTION", color = if (isIncident) ColorCritical else ColorSafe, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Crowd surge expected at Gate 7 in 6 minutes", color = ColorCritical, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                if (isIncident) "Crowd surge expected at Gate 7 in ${state.surgeMinutes} minutes" else "Normal egress flows predicted. Gate 7 is clear.",
+                                color = if (isIncident) ColorCritical else TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("Confidence 96%", color = TextSecondary, fontSize = 12.sp)
                         }
-                        Text("View Details", color = TextSecondary, fontSize = 12.sp)
+                        TextButton(onClick = onNavigateToFeeds) {
+                            Text("View Details", color = TextSecondary, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Live CCTV Feeds Preview Section
+        item {
+            Surface(
+                color = Color(0xFF1E293B).copy(alpha = 0.85f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .clickable { onNavigateToFeeds() }
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(ColorCritical)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "LIVE CCTV FEEDS",
+                                color = TextPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
+                        Text(
+                            "View All (6)",
+                            color = ColorAiBlue,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Preview 1 (Gate 7)
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        ) {
+                            Image(
+                                painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.img_cctv_gate7_1783444051163),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
+                            )
+                            Text(
+                                "Gate 7",
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(8.dp)
+                            )
+                        }
+
+                        // Preview 2 (Gate 3)
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                        ) {
+                            Image(
+                                painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.img_cctv_gate3_1783444067059),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
+                            )
+                            Text(
+                                "Gate 3",
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(8.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -180,7 +309,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector?, iconColor: Color, value: String, subValue: String, subValueColor: Color, isCircular: Boolean = false, modifier: Modifier = Modifier) {
+fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector?, iconColor: Color, value: String, subValue: String, subValueColor: Color, isCircular: Boolean = false, progress: Float = 0.8f, modifier: Modifier = Modifier) {
     Surface(
         color = Color(0xFF1E293B).copy(alpha = 0.85f),
         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -192,8 +321,8 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
             
             if (isCircular) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(50.dp)) {
-                    CircularProgressIndicator(progress = { 0.8f }, modifier = Modifier.fillMaxSize(), color = iconColor, strokeWidth = 4.dp, trackColor = Color(0xFF0F172A), strokeCap = androidx.compose.ui.graphics.StrokeCap.Round)
-                    Text(value, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    CircularProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxSize(), color = iconColor, strokeWidth = 4.dp, trackColor = Color(0xFF0F172A), strokeCap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    Text(value, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             } else {
                 if (icon != null) {

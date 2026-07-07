@@ -61,7 +61,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
             containerColor = Color.Transparent,
             topBar = {
-                if (currentScreen in listOf(Screen.Home, Screen.Stadium, Screen.AICopilot, Screen.Alerts)) {
+                if (currentScreen == Screen.Home) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
@@ -187,10 +187,10 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                     .padding(paddingValues)
             ) {
                 when (currentScreen) {
-                    Screen.Home -> DashboardScreen(viewModel)
-                    Screen.Stadium -> MapScreen(viewModel)
-                    Screen.AICopilot -> LiveDemoScreen(viewModel)
-                    Screen.Alerts -> AlertsScreen(viewModel)
+                    Screen.Home -> DashboardScreen(viewModel, onNavigateToFeeds = { currentScreen = Screen.LiveFeeds })
+                    Screen.Stadium -> MapScreen(viewModel, onBack = { currentScreen = Screen.Home }, onNavigateToFeeds = { currentScreen = Screen.LiveFeeds })
+                    Screen.AICopilot -> LiveDemoScreen(viewModel, onBack = { currentScreen = Screen.Home })
+                    Screen.Alerts -> AlertsScreen(viewModel, onBack = { currentScreen = Screen.Home }, onNavigateToFeeds = { currentScreen = Screen.LiveFeeds })
                     Screen.MatchOverview -> MatchOverviewScreen(viewModel, onBack = { currentScreen = Screen.Home })
                     Screen.LiveFeeds -> LiveFeedsScreen(viewModel, onBack = { currentScreen = Screen.Home })
                 }

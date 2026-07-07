@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,7 +31,7 @@ import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun LiveDemoScreen(viewModel: MainViewModel) {
+fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,8 +39,22 @@ fun LiveDemoScreen(viewModel: MainViewModel) {
             .padding(bottom = 120.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("GEMINI OPERATIONS ASSISTANT", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
-        Text("AI Copilot", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("GEMINI OPERATIONS ASSISTANT", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+                Text("AI Copilot", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+            }
+            IconButton(onClick = {}) {
+                Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
+            }
+        }
         
         Spacer(modifier = Modifier.height(24.dp))
         

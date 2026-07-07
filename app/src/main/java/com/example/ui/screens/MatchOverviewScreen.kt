@@ -24,11 +24,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
 
 @Composable
 fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+    val state by viewModel.dashboardState.collectAsStateWithLifecycle()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -71,13 +74,14 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("2 - 1", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                    Text("${state.mexScore} - ${state.braScore}", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
                     Surface(
                         color = ColorSafeDark.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(12.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.5f))
                     ) {
-                        Text("72:18", color = ColorSafe, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                        val formattedSeconds = String.format("%02d", state.matchSeconds)
+                        Text("${state.matchMinutes}:$formattedSeconds", color = ColorSafe, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
                     }
                 }
 
@@ -110,14 +114,15 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
         // Operations Snapshot
         item {
+            val hasIncident = state.activeIncidentsCount > 0
             Text("OPERATIONS SNAPSHOT", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-            Text("All Systems Operational", color = TextSecondary, fontSize = 12.sp)
+            Text(if (hasIncident) "Active Gate Incident Detected" else "All Systems Operational", color = if (hasIncident) ColorCritical else TextSecondary, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(16.dp))
             
-            SnapshotItem("Security", "Normal", ColorSafe)
+            SnapshotItem("Security", if (hasIncident) "Alert" else "Normal", if (hasIncident) ColorCritical else ColorSafe)
+            SnapshotItem("Gate Flow", if (hasIncident) "Congested" else "Good", if (hasIncident) ColorCritical else ColorSafe)
             SnapshotItem("Transportation", "Good", ColorSafe)
             SnapshotItem("Medical", "Normal", ColorSafe)
-            SnapshotItem("Weather", "Good", ColorSafe)
         }
     }
 }
