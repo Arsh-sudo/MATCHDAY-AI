@@ -51,7 +51,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
         // Emergency Wow Feature
         if (state.surgeMinutes < 10) {
             item {
-                EmergencyAlertCard(state.surgeMinutes)
+                EmergencyAlertCard(state.surgeMinutes, onDeploy = { viewModel.resolveEmergency() })
             }
         }
 
@@ -197,7 +197,7 @@ fun DashboardMetricCard(title: String, value: String, trend: String, progress: F
 }
 
 @Composable
-fun EmergencyAlertCard(mins: Int) {
+fun EmergencyAlertCard(mins: Int, onDeploy: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "shake")
     val offset by infiniteTransition.animateFloat(
         initialValue = -2f,
@@ -247,7 +247,7 @@ fun EmergencyAlertCard(mins: Int) {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = {}, 
+                onClick = onDeploy, 
                 colors = ButtonDefaults.buttonColors(containerColor = ColorCritical),
                 modifier = Modifier.fillMaxWidth()
             ) {

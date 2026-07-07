@@ -56,8 +56,10 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
     }
     
     Scaffold(
+        modifier = Modifier.fillMaxSize().background(BgMain).windowInsetsPadding(WindowInsets.safeDrawing),
+        containerColor = Color.Transparent,
         topBar = {
-            Column(modifier = Modifier.fillMaxWidth().background(BgMain)) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,

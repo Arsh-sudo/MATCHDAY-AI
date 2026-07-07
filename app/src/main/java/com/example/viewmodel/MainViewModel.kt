@@ -143,4 +143,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             dao.insertMessage(ChatMessageEntity(text = "Hello Operations Staff 👋\n\nI am MATCHDAY AI.\nConnected to:\n✓ CCTV\n✓ Crowd Sensors\n✓ Transit APIs\n✓ Weather\n✓ Medical Teams\n\nAsk anything.", isUser = false))
         }
     }
+    
+    fun resolveEmergency() {
+        val current = _dashboardState.value
+        _dashboardState.value = current.copy(
+            surgeMinutes = (15..20).random(),
+            gate7Density = (50..65).random(),
+            volunteersActive = current.volunteersActive + 3
+        )
+    }
 }
