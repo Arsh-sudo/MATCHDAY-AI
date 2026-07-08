@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -46,6 +51,11 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
     val fanSeat by viewModel.fanSeat.collectAsStateWithLifecycle()
     val fanTicketId by viewModel.fanTicketId.collectAsStateWithLifecycle()
 
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -53,6 +63,11 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
     ) {
         // Stadium Hero Image & Match Header
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(tween(800)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,22 +121,40 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                     Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
                 }
             }
+            }
         }
 
         // Real-Time Telemetry Card
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 200)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             TelemetryCard(viewModel = viewModel)
+            }
         }
 
         // Sustainability Card
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(800, delayMillis = 300)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             SustainabilityCard(state = state)
+            }
         }
 
         if (loggedInUserType == "fan") {
             // ================== FAN-SPECIFIC EXPERIENCE ==================
             
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 400)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     horizontalArrangement = Arrangement.Center
@@ -136,10 +169,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         Text("Accessible Route to Seat")
                     }
                 }
+                }
             }
             
             // 1. Digital Match ticket & Seat Guide Card
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 500)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Surface(
                     color = Color(0xFF1E293B).copy(alpha = 0.85f),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -208,10 +247,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         }
                     }
                 }
+                }
             }
 
             // 2. Convenience & Concessions Live Status Row
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 600)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -244,10 +289,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         modifier = Modifier.weight(1f)
                     )
                 }
+                }
             }
 
             // 3. Match Statistics (Fan Engagement)
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 700)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Surface(
                     color = Color(0xFF1E293B).copy(alpha = 0.85f),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -290,10 +341,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         }
                     }
                 }
+                }
             }
 
             // 4. Group Standings
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 800)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Surface(
                     color = Color(0xFF1E293B).copy(alpha = 0.85f),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -323,6 +380,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         }
                     }
                 }
+                }
             }
             
         } else {
@@ -330,6 +388,11 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
             
             // AI Stadium Score
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 400)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Surface(
                     color = Color(0xFF1E293B).copy(alpha = 0.85f),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -361,10 +424,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         }
                     }
                 }
+                }
             }
 
             // Stats Row
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 500)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatCard(
                         title = "ATTENDANCE",
@@ -396,10 +465,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         modifier = Modifier.weight(1f)
                     )
                 }
+                }
             }
 
             // AI Prediction
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 600)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 val isIncident = state.activeIncidentsCount > 0
                 val cardBorder = if (isIncident) ColorCritical.copy(alpha = 0.3f) else ColorSafe.copy(alpha = 0.3f)
                 val radialColor = if (isIncident) ColorCriticalDark.copy(alpha = 0.5f) else ColorSafeDark.copy(alpha = 0.3f)
@@ -430,10 +505,16 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         }
                     }
                 }
+                }
             }
 
             // Live CCTV Feeds Preview Section
             item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 700)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Surface(
                     color = Color(0xFF1E293B).copy(alpha = 0.85f),
                     border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -539,6 +620,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                             }
                         }
                     }
+                }
                 }
             }
         }

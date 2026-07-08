@@ -58,6 +58,11 @@ fun LoginScreen(viewModel: MainViewModel) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "stadium_lights")
     val alphaLight by infiniteTransition.animateFloat(
         initialValue = 0.1f,
@@ -96,14 +101,22 @@ fun LoginScreen(viewModel: MainViewModel) {
             drawPath(beamRight, Brush.linearGradient(listOf(ColorAiPurple.copy(alpha = alphaLight), Color.Transparent)))
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
-                .windowInsetsPadding(WindowInsets.safeDrawing),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(
+                initialOffsetY = { 100 },
+                animationSpec = tween(1000, easing = FastOutSlowInEasing)
+            ),
+            modifier = Modifier.fillMaxSize()
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp)
+                    .windowInsetsPadding(WindowInsets.safeDrawing),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
             // Header Soccer Emblem
             Box(
                 modifier = Modifier
@@ -166,38 +179,56 @@ fun LoginScreen(viewModel: MainViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Fan tab
+                    val fanTabBg by animateColorAsState(
+                        targetValue = if (activeTab == 0) Color(0xFF1E293B) else Color.Transparent,
+                        label = "fan_bg"
+                    )
+                    val fanTabTextColor by animateColorAsState(
+                        targetValue = if (activeTab == 0) AccentLight else TextSecondary,
+                        label = "fan_text"
+                    )
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(if (activeTab == 0) Color(0xFF1E293B) else Color.Transparent)
+                            .background(fanTabBg)
                             .clickable { activeTab = 0 }
                             .testTag("tab_fan"),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "FAN PORTAL",
-                            color = if (activeTab == 0) AccentLight else TextSecondary,
+                            color = fanTabTextColor,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp
                         )
                     }
 
                     // Operations tab
+                    val opsTabBg by animateColorAsState(
+                        targetValue = if (activeTab == 1) Color(0xFF1E293B) else Color.Transparent,
+                        label = "ops_bg"
+                    )
+                    val opsTabTextColor by animateColorAsState(
+                        targetValue = if (activeTab == 1) AccentLight else TextSecondary,
+                        label = "ops_text"
+                    )
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(if (activeTab == 1) Color(0xFF1E293B) else Color.Transparent)
+                            .background(opsTabBg)
                             .clickable { activeTab = 1 }
                             .testTag("tab_staff"),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "OPERATIONS",
-                            color = if (activeTab == 1) AccentLight else TextSecondary,
+                            color = opsTabTextColor,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp
                         )
@@ -213,7 +244,15 @@ fun LoginScreen(viewModel: MainViewModel) {
                     .fillMaxWidth()
                     .animateContentSize()
             ) {
-                if (activeTab == 0) {
+                AnimatedContent(
+                    targetState = activeTab,
+                    transitionSpec = {
+                        (slideInHorizontally { width -> if (targetState > initialState) width else -width } + fadeIn()) togetherWith
+                        (slideOutHorizontally { width -> if (targetState > initialState) -width else width } + fadeOut())
+                    },
+                    label = "tab_content_animation"
+                ) { targetTab ->
+                    if (targetTab == 0) {
                     // FAN PORTAL VIEW
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -458,6 +497,8 @@ fun LoginScreen(viewModel: MainViewModel) {
                     }
                 }
             }
+            }
         }
     }
+}
 }
