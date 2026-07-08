@@ -64,9 +64,7 @@ fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds
                             Text("ALERTS CENTER", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
                             Text("Live Notifications", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
                         }
-                        IconButton(onClick = {}) {
-                            Icon(Icons.Default.Tune, contentDescription = "Filter", tint = TextPrimary)
-                        }
+                        Spacer(modifier = Modifier.width(48.dp))
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                 }

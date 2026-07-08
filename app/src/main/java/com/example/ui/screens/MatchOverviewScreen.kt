@@ -67,9 +67,7 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             Text("MATCH OVERVIEW", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
                             Text("Live Match & Operations", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
                         }
-                        IconButton(onClick = {}) {
-                            Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
-                        }
+                        Spacer(modifier = Modifier.width(48.dp))
                     }
                     Spacer(modifier = Modifier.height(32.dp))
                 }
@@ -132,7 +130,7 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 Column {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("MATCH STATS", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                        Text("View All", color = ColorAiBlue, fontSize = 12.sp)
+                        Spacer(modifier = Modifier.width(1.dp))
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                     

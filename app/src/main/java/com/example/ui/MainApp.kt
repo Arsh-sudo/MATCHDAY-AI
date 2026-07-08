@@ -136,11 +136,6 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                                 letterSpacing = 0.5.sp
                                             )
                                         }
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(12.dp))
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Powered by Gemini", color = ColorAiPurple, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                                        }
                                     }
                                 }
                                 

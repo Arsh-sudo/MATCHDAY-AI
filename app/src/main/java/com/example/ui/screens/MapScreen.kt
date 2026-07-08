@@ -125,9 +125,7 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                         color = TextSecondary
                     )
                 }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = TextPrimary)
-                }
+                Spacer(modifier = Modifier.width(48.dp))
             }
             }
         }
