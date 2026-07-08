@@ -16,7 +16,6 @@ val AccentDark = Color(0xFF0055FF)
 // Operational Colors
 val ColorSafe = Color(0xFF00FF66)      // Neon Green
 val ColorAttention = Color(0xFFFFCC00) // Warning Yellow
-val ColorHeavy = Color(0xFFFF8800)     // Orange
 val ColorCritical = Color(0xFFFF3B30)  // Neon Red
 
 // AI Branding Colors

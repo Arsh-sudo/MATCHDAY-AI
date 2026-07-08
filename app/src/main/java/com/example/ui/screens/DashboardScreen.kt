@@ -30,10 +30,12 @@ import com.example.ui.theme.*
 import androidx.compose.ui.platform.testTag
 
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.Accessible
+import androidx.compose.material.icons.filled.Recycling
+import androidx.compose.material.icons.filled.EnergySavingsLeaf
+import androidx.compose.material.icons.filled.Co2
 import androidx.compose.material.icons.filled.Speed
 
 @Composable
@@ -111,8 +113,30 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
             TelemetryCard(viewModel = viewModel)
         }
 
+        // Sustainability Card
+        item {
+            SustainabilityCard()
+        }
+
         if (loggedInUserType == "fan") {
             // ================== FAN-SPECIFIC EXPERIENCE ==================
+            
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = { viewModel.sendMessage("Show me the accessible route to my seat.") },
+                        colors = ButtonDefaults.buttonColors(containerColor = ColorAiBlue),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(androidx.compose.material.icons.Icons.Default.Accessible, contentDescription = "Accessible Route")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Accessible Route to Seat")
+                    }
+                }
+            }
             
             // 1. Digital Match ticket & Seat Guide Card
             item {
@@ -166,9 +190,15 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
+                            val gate3Density = remember { (15..25).random() }
+                            val aiTipText = if (state.gate7Density >= 75) {
+                                "AI Wayfinding Tip: Gate 3 has normal density ($gate3Density%). Avoid Gate 7 (${state.gate7Density}% congestion)."
+                            } else {
+                                "AI Wayfinding Tip: All gates operating normally. Gate 4 recommended for quickest entry."
+                            }
                             Icon(Icons.Filled.AutoAwesome, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(20.dp))
                             Text(
-                                text = "AI Wayfinding Tip: Gate 3 has normal density (${(15..25).random()}%). Avoid Gate 7 which has high congestion due to a halftime surge prediction.",
+                                text = aiTipText,
                                 color = TextPrimary,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
@@ -225,7 +255,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("LIVE MATCH STATS", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Text("MATCH STATS AT ${state.matchMinutes}'", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
@@ -769,6 +799,75 @@ fun TelemetryStatItem(
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
+        }
+    }
+}
+
+@Composable
+fun SustainabilityCard() {
+    Surface(
+        color = Color(0xFF1E293B).copy(alpha = 0.85f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.EnergySavingsLeaf,
+                        contentDescription = "Sustainability",
+                        tint = ColorSafe,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "SUSTAINABILITY METRICS",
+                        color = TextPrimary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TelemetryStatItem(
+                    title = "RENEWABLE ENERGY",
+                    value = "82%",
+                    subValue = "SOLAR ACTIVE",
+                    icon = Icons.Default.EnergySavingsLeaf,
+                    iconColor = ColorSafe,
+                    modifier = Modifier.weight(1f)
+                )
+
+                TelemetryStatItem(
+                    title = "WASTE DIVERSION",
+                    value = "64%",
+                    subValue = "COMPOST & RECYCLE",
+                    icon = Icons.Default.Recycling,
+                    iconColor = ColorAiBlue,
+                    modifier = Modifier.weight(1f)
+                )
+
+                TelemetryStatItem(
+                    title = "CARBON OFFSET",
+                    value = "1.2t",
+                    subValue = "TRANSIT SAVINGS",
+                    icon = Icons.Default.Co2,
+                    iconColor = ColorAiPurple,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

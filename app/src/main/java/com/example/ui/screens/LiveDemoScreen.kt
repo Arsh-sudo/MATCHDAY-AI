@@ -39,7 +39,11 @@ import com.example.viewmodel.MainViewModel
 import com.example.viewmodel.ChatMessage
 import com.example.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
@@ -49,9 +53,13 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val currentLanguageState by viewModel.currentLanguage.collectAsStateWithLifecycle()
     val loggedInUserType by viewModel.loggedInUserType.collectAsStateWithLifecycle()
     val fanSeat by viewModel.fanSeat.collectAsStateWithLifecycle()
+    val fanName by viewModel.fanName.collectAsStateWithLifecycle()
     
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    var showClearDialog by remember { mutableStateOf(false) }
+    
+    val recordAudioPermissionState = rememberPermissionState(android.Manifest.permission.RECORD_AUDIO)
     
     val speechRecognizerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -64,6 +72,28 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             }
         }
     )
+    
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Clear Chat History?", color = TextPrimary) },
+            text = { Text("This action cannot be undone.", color = TextSecondary) },
+            containerColor = Color(0xFF1E293B),
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.clearHistory()
+                    showClearDialog = false
+                }) {
+                    Text("Clear", color = ColorCritical)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearDialog = false }) {
+                    Text("Cancel", color = TextPrimary)
+                }
+            }
+        )
+    }
     
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
@@ -121,7 +151,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                     DropdownMenuItem(
                         text = { Text("Clear Chat History", color = ColorCritical) },
                         onClick = {
-                            viewModel.clearHistory()
+                            showClearDialog = true
                             showMenu = false
                         }
                     )
@@ -245,7 +275,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
             items(messages) { message ->
-                ChatBubbleItem(message)
+                ChatBubbleItem(message, loggedInUserType, fanName)
             }
             
             if (isLoading) {
@@ -269,8 +299,8 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(listOf("Show Crowd Status", "Traffic Update", "Medical Emergencies", "Open Incidents", "Volunteer Deployment")) { action ->
-                    ActionChip(text = action, onClick = {
-                        viewModel.sendMessage(action)
+                    ActionChip(text = action, isLoading = isLoading, onClick = {
+                        if (!isLoading) viewModel.sendMessage(action)
                     })
                 }
             }
@@ -311,15 +341,19 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             
             IconButton(
                 onClick = {
-                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
-                        putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to MATCHDAY AI...")
-                    }
-                    try {
-                        speechRecognizerLauncher.launch(intent)
-                    } catch (e: Exception) {
-                        // Safe fallback if recognizer activity is unavailable
+                    if (recordAudioPermissionState.status.isGranted) {
+                        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                            putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
+                            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to MATCHDAY AI...")
+                        }
+                        try {
+                            speechRecognizerLauncher.launch(intent)
+                        } catch (e: Exception) {
+                            // Safe fallback if recognizer activity is unavailable
+                        }
+                    } else {
+                        recordAudioPermissionState.launchPermissionRequest()
                     }
                 },
                 modifier = Modifier.testTag("mic_button")
@@ -366,7 +400,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun ChatBubbleItem(message: ChatMessage) {
+fun ChatBubbleItem(message: ChatMessage, loggedInUserType: String, fanName: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -410,15 +444,18 @@ fun ChatBubbleItem(message: ChatMessage) {
 
         if (message.isUser) {
             Spacer(modifier = Modifier.width(8.dp))
+            val avatarText = if (loggedInUserType == "fan") fanName.take(2).uppercase() else "OP"
+            val avatarColor = if (loggedInUserType == "fan") ColorAiBlue else ColorAiPurple
+            
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(ColorAiPurple.copy(alpha = 0.15f))
-                    .border(1.dp, ColorAiPurple.copy(alpha = 0.3f), CircleShape),
+                    .background(avatarColor.copy(alpha = 0.15f))
+                    .border(1.dp, avatarColor.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text("OP", color = ColorAiPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(avatarText, color = avatarColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -469,18 +506,18 @@ fun TypingIndicatorItem(typingStatus: String) {
 }
 
 @Composable
-fun ActionChip(text: String, onClick: () -> Unit) {
+fun ActionChip(text: String, isLoading: Boolean, onClick: () -> Unit) {
     Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.5f),
+        color = Color(0xFF1E293B).copy(alpha = if (isLoading) 0.2f else 0.5f),
         shape = RoundedCornerShape(20.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder.copy(alpha = if (isLoading) 0.3f else 1f)),
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .clickable(enabled = !isLoading, onClick = onClick)
             .testTag("action_chip_${text.lowercase().replace(" ", "_")}")
     ) {
         Text(
             text = text,
-            color = TextPrimary,
+            color = if (isLoading) TextSecondary.copy(alpha = 0.5f) else TextPrimary,
             fontSize = 12.sp,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )

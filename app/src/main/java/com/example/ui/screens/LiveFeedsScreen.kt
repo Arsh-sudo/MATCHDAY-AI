@@ -71,7 +71,7 @@ fun LiveFeedsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             item { FeedCard("Gate 7", gate7Status, gate7Color, com.example.R.drawable.img_cctv_gate7_1783444051163) }
             item { FeedCard("Gate 3", "Normal", ColorSafe, com.example.R.drawable.img_cctv_gate3_1783444067059) }
             item { FeedCard("North Concourse", "Moderate", ColorAttention, com.example.R.drawable.img_cctv_concourse_1783444082961) }
-            item { FeedCard("South Entrance", "Normal", ColorSafe, com.example.R.drawable.img_cctv_gate7_1783444051163) }
+            item { FeedCard("South Entrance", "Normal", ColorSafe, com.example.R.drawable.img_cctv_metro_1783444098594) }
             item { FeedCard("Parking A", parkingStatus, parkingColor, com.example.R.drawable.img_cctv_concourse_1783444082961) }
             item { FeedCard("Metro Station", "Normal", ColorSafe, com.example.R.drawable.img_cctv_metro_1783444098594) }
         }

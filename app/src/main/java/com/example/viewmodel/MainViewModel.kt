@@ -326,6 +326,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     nextSeconds -= 60
                     nextMinutes += 1
                 }
+                if (nextMinutes >= 90) {
+                    nextMinutes = 90
+                    nextSeconds = 0
+                }
                 
                 // Keep score updated
                 var nextMex = current.mexScore

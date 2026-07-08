@@ -152,7 +152,10 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                             GlowingIndicator()
                                         }
                                         Spacer(modifier = Modifier.height(2.dp))
-                                        Text("02:08 PM", color = TextSecondary, fontSize = 12.sp)
+                                        val currentTime = remember { 
+                                            java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date()) 
+                                        }
+                                        Text(currentTime, color = TextSecondary, fontSize = 12.sp)
                                     }
                                 }
                             }

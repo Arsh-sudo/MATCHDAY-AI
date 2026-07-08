@@ -295,7 +295,7 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                             Canvas(modifier = Modifier.fillMaxSize()) {
                                 val path = Path()
                                 val points = currentGateInfo.trendPoints
-                                if (points.isNotEmpty()) {
+                                if (points.size > 1) {
                                     val stepX = size.width / (points.size - 1)
                                     points.forEachIndexed { i, value ->
                                         val x = i * stepX
