@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -28,6 +33,11 @@ import com.example.ui.theme.*
 fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: () -> Unit) {
     val state by viewModel.dashboardState.collectAsStateWithLifecycle()
 
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -36,75 +46,107 @@ fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds
         contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp)
     ) {
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(tween(800)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("ALERTS CENTER", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
-                    Text("Live Notifications", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.Tune, contentDescription = "Filter", tint = TextPrimary)
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("ALERTS CENTER", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+                            Text("Live Notifications", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                        }
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.Tune, contentDescription = "Filter", tint = TextPrimary)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
         }
 
         if (state.activeIncidentsCount > 0) {
             item {
-                EmergencyAlertCard(mins = state.surgeMinutes, onDeploy = { viewModel.resolveEmergency() }, onNavigateToFeeds = onNavigateToFeeds)
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 200)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    EmergencyAlertCard(mins = state.surgeMinutes, onDeploy = { viewModel.resolveEmergency() }, onNavigateToFeeds = onNavigateToFeeds)
+                }
             }
         } else {
             item {
-                Surface(
-                    color = ColorSafeDark.copy(alpha = 0.15f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.3f)),
-                    shape = RoundedCornerShape(24.dp),
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 200)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(
-                            modifier = Modifier.size(56.dp).background(ColorSafe.copy(alpha = 0.15f), CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("✓", color = ColorSafe, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    Surface(
+                        color = ColorSafeDark.copy(alpha = 0.15f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.3f)),
+                        shape = RoundedCornerShape(24.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                modifier = Modifier.size(56.dp).background(ColorSafe.copy(alpha = 0.15f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("✓", color = ColorSafe, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("No Active Gate Alerts", fontWeight = FontWeight.Bold, color = ColorSafe, style = MaterialTheme.typography.titleLarge)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("All egress pathways and terminal turnstiles are operating within safe baseline densities.", color = TextSecondary, style = MaterialTheme.typography.bodyMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("No Active Gate Alerts", fontWeight = FontWeight.Bold, color = ColorSafe, style = MaterialTheme.typography.titleLarge)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("All egress pathways and terminal turnstiles are operating within safe baseline densities.", color = TextSecondary, style = MaterialTheme.typography.bodyMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
             }
         }
 
         item {
-            AlertCard(
-                title = "Metro Delay",
-                subtitle = "Line 3 - South Station",
-                severityColor = ColorAttention,
-                severityColorDark = ColorAttentionDark,
-                description = "Delay: 8 mins\nImpact: Moderate",
-                actionText = "Update digital signage",
-                onNavigateToFeeds = onNavigateToFeeds
-            )
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(800, delayMillis = 300)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AlertCard(
+                    title = "Metro Delay",
+                    subtitle = "Line 3 - South Station",
+                    severityColor = ColorAttention,
+                    severityColorDark = ColorAttentionDark,
+                    description = "Delay: 8 mins\nImpact: Moderate",
+                    actionText = "Update digital signage",
+                    onNavigateToFeeds = onNavigateToFeeds
+                )
+            }
         }
 
         item {
-            AlertCard(
-                title = "Weather Update",
-                subtitle = "Light Rain Expected",
-                severityColor = ColorSafe,
-                severityColorDark = ColorSafeDark,
-                description = "Duration: Next 2 hours",
-                actionText = "Close roof",
-                onNavigateToFeeds = onNavigateToFeeds
-            )
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 400)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AlertCard(
+                    title = "Weather Update",
+                    subtitle = "Light Rain Expected",
+                    severityColor = ColorSafe,
+                    severityColorDark = ColorSafeDark,
+                    description = "Duration: Next 2 hours",
+                    actionText = "Close roof",
+                    onNavigateToFeeds = onNavigateToFeeds
+                )
+            }
         }
     }
 }

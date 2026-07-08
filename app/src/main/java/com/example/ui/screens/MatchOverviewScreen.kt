@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,6 +37,11 @@ import com.example.ui.theme.*
 fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val state by viewModel.dashboardState.collectAsStateWithLifecycle()
 
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -39,90 +49,122 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp)
     ) {
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(tween(800)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("MATCH OVERVIEW", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
-                    Text("Live Match & Operations", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("MATCH OVERVIEW", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+                            Text("Live Match & Operations", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                        }
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(32.dp))
         }
 
         // Scoreboard
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 200)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(modifier = Modifier.size(64.dp).background(Color.White, CircleShape), contentAlignment = Alignment.Center) {
-                        Text("🇲🇽", fontSize = 36.sp)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("MEX", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                }
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("${state.mexScore} - ${state.braScore}", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-                    Surface(
-                        color = ColorSafeDark.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.5f))
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val formattedSeconds = String.format("%02d", state.matchSeconds)
-                        Text("${state.matchMinutes}:$formattedSeconds", color = ColorSafe, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
-                    }
-                }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(modifier = Modifier.size(64.dp).background(Color.White, CircleShape), contentAlignment = Alignment.Center) {
+                                Text("🇲🇽", fontSize = 36.sp)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("MEX", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        }
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(modifier = Modifier.size(64.dp).background(Color.White, CircleShape), contentAlignment = Alignment.Center) {
-                        Text("🇧🇷", fontSize = 36.sp)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("${state.mexScore} - ${state.braScore}", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+                            Surface(
+                                color = ColorSafeDark.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(12.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.5f))
+                            ) {
+                                val formattedSeconds = String.format("%02d", state.matchSeconds)
+                                Text("${state.matchMinutes}:$formattedSeconds", color = ColorSafe, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                            }
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(modifier = Modifier.size(64.dp).background(Color.White, CircleShape), contentAlignment = Alignment.Center) {
+                                Text("🇧🇷", fontSize = 36.sp)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("BRA", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("BRA", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(48.dp))
         }
 
         // Match Stats
         item {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("MATCH STATS", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                Text("View All", color = ColorAiBlue, fontSize = 12.sp)
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 300)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text("MATCH STATS", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Text("View All", color = ColorAiBlue, fontSize = 12.sp)
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        StatRing("POSSESSION", "${state.mexPossessionPct}%", state.mexPossessionPct / 100f, ColorSafe)
+                        StatRing("ATTEMPTS", "${state.mexShots}", (state.mexShots / 15f).coerceAtMost(1f), ColorAiBlue)
+                        StatRing("CORNERS", "${state.mexCorners}", (state.mexCorners / 12f).coerceAtMost(1f), ColorAiPurple)
+                    }
+                    Spacer(modifier = Modifier.height(48.dp))
+                }
             }
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                StatRing("POSSESSION", "${state.mexPossessionPct}%", state.mexPossessionPct / 100f, ColorSafe)
-                StatRing("ATTEMPTS", "${state.mexShots}", (state.mexShots / 15f).coerceAtMost(1f), ColorAiBlue)
-                StatRing("CORNERS", "${state.mexCorners}", (state.mexCorners / 12f).coerceAtMost(1f), ColorAiPurple)
-            }
-            Spacer(modifier = Modifier.height(48.dp))
         }
 
         // Operations Snapshot
         item {
-            val hasIncident = state.activeIncidentsCount > 0
-            Text("OPERATIONS SNAPSHOT", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-            Text(if (hasIncident) "Active Gate Incident Detected" else "All Systems Operational", color = if (hasIncident) ColorCritical else TextSecondary, fontSize = 12.sp)
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            SnapshotItem("Security", if (hasIncident) "Alert" else "Normal", if (hasIncident) ColorCritical else ColorSafe)
-            SnapshotItem("Gate Flow", if (hasIncident) "Congested" else "Good", if (hasIncident) ColorCritical else ColorSafe)
-            SnapshotItem("Transportation", "Good", ColorSafe)
-            SnapshotItem("Medical", "Normal", ColorSafe)
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(800, delayMillis = 400)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column {
+                    val hasIncident = state.activeIncidentsCount > 0
+                    Text("OPERATIONS SNAPSHOT", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text(if (hasIncident) "Active Gate Incident Detected" else "All Systems Operational", color = if (hasIncident) ColorCritical else TextSecondary, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    SnapshotItem("Security", if (hasIncident) "Alert" else "Normal", if (hasIncident) ColorCritical else ColorSafe)
+                    SnapshotItem("Gate Flow", if (hasIncident) "Congested" else "Good", if (hasIncident) ColorCritical else ColorSafe)
+                    SnapshotItem("Transportation", "Good", ColorSafe)
+                    SnapshotItem("Medical", "Normal", ColorSafe)
+                }
+            }
         }
     }
 }

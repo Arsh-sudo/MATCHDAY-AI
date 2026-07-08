@@ -44,7 +44,11 @@ import androidx.compose.material.icons.filled.Co2
 import androidx.compose.material.icons.filled.Speed
 
 @Composable
-fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
+fun DashboardScreen(
+    viewModel: MainViewModel,
+    onNavigateToFeeds: () -> Unit,
+    onNavigateToAICopilot: () -> Unit
+) {
     val state by viewModel.dashboardState.collectAsStateWithLifecycle()
     val loggedInUserType by viewModel.loggedInUserType.collectAsStateWithLifecycle()
     val fanName by viewModel.fanName.collectAsStateWithLifecycle()
@@ -160,7 +164,10 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = { viewModel.sendMessage("Show me the accessible route to my seat.") },
+                        onClick = {
+                            viewModel.sendMessage("Show me the accessible route to my seat.")
+                            onNavigateToAICopilot()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = ColorAiBlue),
                         shape = RoundedCornerShape(12.dp)
                     ) {

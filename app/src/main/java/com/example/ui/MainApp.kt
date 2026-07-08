@@ -255,7 +255,11 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                     .padding(paddingValues)
             ) {
                 when (currentScreen) {
-                    Screen.Home -> DashboardScreen(viewModel, onNavigateToFeeds = { currentScreen = Screen.LiveFeeds })
+                    Screen.Home -> DashboardScreen(
+                        viewModel = viewModel,
+                        onNavigateToFeeds = { currentScreen = Screen.LiveFeeds },
+                        onNavigateToAICopilot = { currentScreen = Screen.AICopilot }
+                    )
                     Screen.Stadium -> MapScreen(viewModel, onBack = { currentScreen = Screen.Home }, onNavigateToFeeds = { currentScreen = Screen.LiveFeeds })
                     Screen.AICopilot -> LiveDemoScreen(viewModel, onBack = { currentScreen = Screen.Home })
                     Screen.Alerts -> AlertsScreen(viewModel, onBack = { currentScreen = Screen.Home }, onNavigateToFeeds = { currentScreen = Screen.LiveFeeds })

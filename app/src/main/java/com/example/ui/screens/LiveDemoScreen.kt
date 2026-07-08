@@ -5,6 +5,10 @@ import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -110,6 +114,11 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             listState.animateScrollToItem(messages.size - 1)
         }
     }
+
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
     
     Column(
         modifier = Modifier
@@ -119,155 +128,167 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 1. Header Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(tween(800)),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.testTag("back_button")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "GEMINI OPERATIONS ASSISTANT",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "AI Copilot",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = TextSecondary
-                )
-            }
-            var showMenu by remember { mutableStateOf(false) }
-            Box {
                 IconButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier.testTag("more_options_button")
+                    onClick = onBack,
+                    modifier = Modifier.testTag("back_button")
                 ) {
-                    Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Back", tint = TextPrimary)
                 }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                    modifier = Modifier.background(Color(0xFF1E293B))
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Clear Chat History", color = ColorCritical) },
-                        onClick = {
-                            showClearDialog = true
-                            showMenu = false
-                        }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "GEMINI OPERATIONS ASSISTANT",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold
                     )
+                    Text(
+                        text = "AI Copilot",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TextSecondary
+                    )
+                }
+                var showMenu by remember { mutableStateOf(false) }
+                Box {
+                    IconButton(
+                        onClick = { showMenu = true },
+                        modifier = Modifier.testTag("more_options_button")
+                    ) {
+                        Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = TextPrimary)
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                        modifier = Modifier.background(Color(0xFF1E293B))
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Clear Chat History", color = ColorCritical) },
+                            onClick = {
+                                showClearDialog = true
+                                showMenu = false
+                            }
+                        )
+                    }
                 }
             }
         }
         
         // Role & Language Dropdowns Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 150)),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            var showRoleMenu by remember { mutableStateOf(false) }
-            var showLangMenu by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                var showRoleMenu by remember { mutableStateOf(false) }
+                var showLangMenu by remember { mutableStateOf(false) }
 
-            // Role Selector Pill
-            Box(modifier = Modifier.weight(1f)) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.8f),
-                    shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = loggedInUserType != "fan") { showRoleMenu = true }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                // Role Selector Pill
+                Box(modifier = Modifier.weight(1f)) {
+                    Surface(
+                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = loggedInUserType != "fan") { showRoleMenu = true }
                     ) {
-                        Column {
-                            Text(
-                                text = if (loggedInUserType == "fan") "ASSIGNED SEAT" else "PERSONA", 
-                                fontSize = 9.sp, 
-                                color = TextSecondary, 
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = if (loggedInUserType == "fan") "Block $fanSeat" else currentRoleState, 
-                                fontSize = 12.sp, 
-                                color = TextPrimary, 
-                                fontWeight = FontWeight.Bold
-                            )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = if (loggedInUserType == "fan") "ASSIGNED SEAT" else "PERSONA", 
+                                    fontSize = 9.sp, 
+                                    color = TextSecondary, 
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = if (loggedInUserType == "fan") "Block $fanSeat" else currentRoleState, 
+                                    fontSize = 12.sp, 
+                                    color = TextPrimary, 
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            if (loggedInUserType != "fan") {
+                                Text("▾", color = TextSecondary, fontSize = 14.sp)
+                            }
                         }
-                        if (loggedInUserType != "fan") {
+                    }
+                    if (loggedInUserType != "fan") {
+                        DropdownMenu(
+                            expanded = showRoleMenu,
+                            onDismissRequest = { showRoleMenu = false },
+                            modifier = Modifier.background(Color(0xFF1E293B))
+                        ) {
+                            listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
+                                DropdownMenuItem(
+                                    text = { Text(role, color = TextPrimary) },
+                                    onClick = {
+                                        viewModel.setRole(role)
+                                        showRoleMenu = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Language Selector Pill
+                Box(modifier = Modifier.weight(1f)) {
+                    Surface(
+                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showLangMenu = true }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text("LANGUAGE", fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
+                                Text(currentLanguageState, fontSize = 12.sp, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                            }
                             Text("▾", color = TextSecondary, fontSize = 14.sp)
                         }
                     }
-                }
-                if (loggedInUserType != "fan") {
                     DropdownMenu(
-                        expanded = showRoleMenu,
-                        onDismissRequest = { showRoleMenu = false },
+                        expanded = showLangMenu,
+                        onDismissRequest = { showLangMenu = false },
                         modifier = Modifier.background(Color(0xFF1E293B))
                     ) {
-                        listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
+                        listOf("English", "Español", "Português", "Français").forEach { lang ->
                             DropdownMenuItem(
-                                text = { Text(role, color = TextPrimary) },
+                                text = { Text(lang, color = TextPrimary) },
                                 onClick = {
-                                    viewModel.setRole(role)
-                                    showRoleMenu = false
+                                    viewModel.setLanguage(lang)
+                                    showLangMenu = false
                                 }
                             )
                         }
-                    }
-                }
-            }
-
-            // Language Selector Pill
-            Box(modifier = Modifier.weight(1f)) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.8f),
-                    shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showLangMenu = true }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text("LANGUAGE", fontSize = 9.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
-                            Text(currentLanguageState, fontSize = 12.sp, color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                        }
-                        Text("▾", color = TextSecondary, fontSize = 14.sp)
-                    }
-                }
-                DropdownMenu(
-                    expanded = showLangMenu,
-                    onDismissRequest = { showLangMenu = false },
-                    modifier = Modifier.background(Color(0xFF1E293B))
-                ) {
-                    listOf("English", "Español", "Português", "Français").forEach { lang ->
-                        DropdownMenuItem(
-                            text = { Text(lang, color = TextPrimary) },
-                            onClick = {
-                                viewModel.setLanguage(lang)
-                                showLangMenu = false
-                            }
-                        )
                     }
                 }
             }
@@ -276,21 +297,25 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
         
         // 2. Scrollable Messages View
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(tween(800, delayMillis = 300)),
+            modifier = Modifier.weight(1f).fillMaxWidth()
         ) {
-            items(messages) { message ->
-                ChatBubbleItem(message, loggedInUserType, fanName)
-            }
-            
-            if (isLoading) {
-                item {
-                    TypingIndicatorItem(typingStatus)
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(messages) { message ->
+                    ChatBubbleItem(message, loggedInUserType, fanName)
+                }
+                
+                if (isLoading) {
+                    item {
+                        TypingIndicatorItem(typingStatus)
+                    }
                 }
             }
         }
@@ -298,20 +323,26 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
         
         // 3. Suggested Actions
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.Start
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(800, delayMillis = 400)),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Suggested Actions", color = TextSecondary, fontSize = 14.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
             ) {
-                items(listOf("Show Crowd Status", "Traffic Update", "Medical Emergencies", "Open Incidents", "Volunteer Deployment")) { action ->
-                    ActionChip(text = action, isLoading = isLoading, onClick = {
-                        if (!isLoading) viewModel.sendMessage(action)
-                    })
+                Text("Suggested Actions", color = TextSecondary, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(listOf("Show Crowd Status", "Traffic Update", "Medical Emergencies", "Open Incidents", "Volunteer Deployment")) { action ->
+                        ActionChip(text = action, isLoading = isLoading, onClick = {
+                            if (!isLoading) viewModel.sendMessage(action)
+                        })
+                    }
                 }
             }
         }
@@ -319,91 +350,97 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
         
         // 4. Input Bar with Native Voice Typing and Send functionality
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(Color(0xFF1E293B).copy(alpha = 0.6f), RoundedCornerShape(28.dp))
-                .border(1.dp, GlassBorder, RoundedCornerShape(28.dp))
-                .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 500)),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            TextField(
-                value = inputText,
-                onValueChange = { inputText = it },
-                placeholder = { Text("Ask MATCHDAY AI...", color = TextSecondary, fontSize = 14.sp) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = ColorAiBlue
-                ),
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp)
-                    .testTag("chat_input_field"),
-                singleLine = true
-            )
-            
-            IconButton(
-                onClick = {
-                    if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
-                            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to MATCHDAY AI...")
-                        }
-                        try {
-                            speechRecognizerLauncher.launch(intent)
-                        } catch (e: Exception) {
-                            // Safe fallback if recognizer activity is unavailable
-                        }
-                    } else {
-                        recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                    }
-                },
-                modifier = Modifier.testTag("mic_button")
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .background(Color(0xFF1E293B).copy(alpha = 0.6f), RoundedCornerShape(28.dp))
+                    .border(1.dp, GlassBorder, RoundedCornerShape(28.dp))
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Mic,
-                    contentDescription = "Mic",
-                    tint = if (inputText.isEmpty()) TextSecondary else ColorAiPurple,
-                    modifier = Modifier.size(24.dp)
+                TextField(
+                    value = inputText,
+                    onValueChange = { inputText = it },
+                    placeholder = { Text("Ask MATCHDAY AI...", color = TextSecondary, fontSize = 14.sp) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        cursorColor = ColorAiBlue
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                        .testTag("chat_input_field"),
+                    singleLine = true
                 )
-            }
-            
-            Spacer(modifier = Modifier.width(8.dp))
-            
-            IconButton(
-                onClick = {
-                    if (inputText.isNotBlank()) {
-                        viewModel.sendMessage(inputText)
-                        inputText = ""
-                    }
-                },
-                enabled = inputText.isNotBlank() && !isLoading,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (inputText.isNotBlank() && !isLoading) {
-                            Brush.linearGradient(listOf(ColorAiPurple, ColorAiBlue))
+                
+                IconButton(
+                    onClick = {
+                        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
+                                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to MATCHDAY AI...")
+                            }
+                            try {
+                                speechRecognizerLauncher.launch(intent)
+                            } catch (e: Exception) {
+                                // Safe fallback if recognizer activity is unavailable
+                            }
                         } else {
-                            Brush.linearGradient(listOf(Color(0xFF334155), Color(0xFF1E293B)))
+                            recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                         }
+                    },
+                    modifier = Modifier.testTag("mic_button")
+                ) {
+                    Icon(
+                        Icons.Default.Mic,
+                        contentDescription = "Mic",
+                        tint = if (inputText.isEmpty()) TextSecondary else ColorAiPurple,
+                        modifier = Modifier.size(24.dp)
                     )
-                    .testTag("send_button")
-            ) {
-                Icon(
-                    Icons.Default.Send,
-                    contentDescription = "Send",
-                    tint = if (inputText.isNotBlank() && !isLoading) Color.White else TextSecondary,
-                    modifier = Modifier.size(20.dp)
-                )
+                }
+                
+                Spacer(modifier = Modifier.width(8.dp))
+                
+                IconButton(
+                    onClick = {
+                        if (inputText.isNotBlank()) {
+                            viewModel.sendMessage(inputText)
+                            inputText = ""
+                        }
+                    },
+                    enabled = inputText.isNotBlank() && !isLoading,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (inputText.isNotBlank() && !isLoading) {
+                                Brush.linearGradient(listOf(ColorAiPurple, ColorAiBlue))
+                            } else {
+                                Brush.linearGradient(listOf(Color(0xFF334155), Color(0xFF1E293B)))
+                            }
+                        )
+                        .testTag("send_button")
+                ) {
+                    Icon(
+                        Icons.Default.Send,
+                        contentDescription = "Send",
+                        tint = if (inputText.isNotBlank() && !isLoading) Color.White else TextSecondary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }
