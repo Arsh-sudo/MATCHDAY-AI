@@ -92,7 +92,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             onDismissRequest = { showClearDialog = false },
             title = { Text("Clear Chat History?", color = TextPrimary) },
             text = { Text("This action cannot be undone.", color = TextSecondary) },
-            containerColor = Color(0xFF1E293B),
+            containerColor = Color(0xFF0C2410),
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearHistory()
@@ -170,7 +170,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
-                        modifier = Modifier.background(Color(0xFF1E293B))
+                        modifier = Modifier.background(BgMain)
                     ) {
                         DropdownMenuItem(
                             text = { Text("Clear Chat History", color = ColorCritical) },
@@ -236,7 +236,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                         DropdownMenu(
                             expanded = showRoleMenu,
                             onDismissRequest = { showRoleMenu = false },
-                            modifier = Modifier.background(Color(0xFF1E293B))
+                            modifier = Modifier.background(BgMain)
                         ) {
                             listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
                                 DropdownMenuItem(
@@ -274,7 +274,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                     DropdownMenu(
                         expanded = showLangMenu,
                         onDismissRequest = { showLangMenu = false },
-                        modifier = Modifier.background(Color(0xFF1E293B))
+                        modifier = Modifier.background(BgMain)
                     ) {
                         listOf("English", "Español", "Português", "Français").forEach { lang ->
                             DropdownMenuItem(
@@ -355,7 +355,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(Color(0xFF1E293B).copy(alpha = 0.6f), RoundedCornerShape(28.dp))
+                    .background(BgCard, RoundedCornerShape(28.dp))
                     .border(1.dp, GlassBorder, RoundedCornerShape(28.dp))
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -425,7 +425,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             if (inputText.isNotBlank() && !isLoading) {
                                 Brush.linearGradient(listOf(ColorAiPurple, ColorAiBlue))
                             } else {
-                                Brush.linearGradient(listOf(Color(0xFF334155), Color(0xFF1E293B)))
+                                Brush.linearGradient(listOf(Color(0xFF102F15), Color(0xFF06140A)))
                             }
                         )
                         .testTag("send_button")
@@ -474,10 +474,10 @@ fun ChatBubbleItem(message: ChatMessage, loggedInUserType: String, fanName: Stri
                     } else {
                         RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp)
                     },
-                    topBorderColor = if (message.isUser) Color(0xFF3B82F6).copy(alpha = 0.5f) else Color.White.copy(alpha = 0.25f),
-                    bottomBorderColor = if (message.isUser) Color(0xFF1D4ED8).copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
-                    bgStartColor = if (message.isUser) Color(0xFF2563EB).copy(alpha = 0.85f) else Color(0xFF1E293B).copy(alpha = 0.60f),
-                    bgEndColor = if (message.isUser) Color(0xFF1D4ED8).copy(alpha = 0.95f) else Color(0xFF0F172A).copy(alpha = 0.80f)
+                    topBorderColor = if (message.isUser) Color(0xFF34D399).copy(alpha = 0.5f) else Color(0xFF84CC16).copy(alpha = 0.4f),
+                    bottomBorderColor = if (message.isUser) Color(0xFF10B981).copy(alpha = 0.2f) else Color(0xFF4D7C0F).copy(alpha = 0.1f),
+                    bgStartColor = if (message.isUser) Color(0xFF15803D).copy(alpha = 0.85f) else Color(0xFF1A351E).copy(alpha = 0.70f),
+                    bgEndColor = if (message.isUser) Color(0xFF0F5125).copy(alpha = 0.95f) else Color(0xFF0A1F0D).copy(alpha = 0.85f)
                 )
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
@@ -547,7 +547,7 @@ fun TypingIndicatorItem(typingStatus: String) {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth().height(2.dp),
                     color = ColorAiBlue,
-                    trackColor = Color(0xFF0F172A)
+                    trackColor = Color(0xFF102F15)
                 )
             }
         }
@@ -563,8 +563,8 @@ fun ActionChip(text: String, isLoading: Boolean, onClick: () -> Unit) {
                 shape = RoundedCornerShape(20.dp),
                 topBorderColor = Color.White.copy(alpha = if (isLoading) 0.1f else 0.35f),
                 bottomBorderColor = Color.White.copy(alpha = 0.03f),
-                bgStartColor = Color(0xFF1B2535).copy(alpha = if (isLoading) 0.15f else 0.45f),
-                bgEndColor = Color(0xFF0F1522).copy(alpha = if (isLoading) 0.25f else 0.65f)
+                bgStartColor = Color(0xFF163E1F).copy(alpha = if (isLoading) 0.15f else 0.45f),
+                bgEndColor = Color(0xFF06140A).copy(alpha = if (isLoading) 0.25f else 0.65f)
             )
             .testTag("action_chip_${text.lowercase().replace(" ", "_")}")
     ) {

@@ -199,7 +199,7 @@ fun StatRing(label: String, value: String, progress: Float, color: Color) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val strokeWidth = 8.dp.toPx()
                 drawArc(
-                    color = Color(0xFF1E293B),
+                    color = Color(0xFF102F15),
                     startAngle = 0f,
                     sweepAngle = 360f,
                     useCenter = false,

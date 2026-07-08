@@ -324,7 +324,7 @@ fun DashboardScreen(
                             Text("BRA ${100 - state.mexPossessionPct}%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
-                        Row(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFF0F172A))) {
+                        Row(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFF102F15))) {
                             Box(modifier = Modifier.weight(state.mexPossessionPct / 100f).fillMaxHeight().background(Color(0xFF006633)))
                             Box(modifier = Modifier.weight((100 - state.mexPossessionPct) / 100f).fillMaxHeight().background(Color(0xFFFFCC00)))
                         }
@@ -662,7 +662,7 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
                         modifier = Modifier.fillMaxSize(),
                         color = iconColor,
                         strokeWidth = 3.5.dp,
-                        trackColor = Color(0xFF0F172A),
+                        trackColor = Color(0xFF102F15),
                         strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
                     )
                     Text(value, color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -774,7 +774,7 @@ fun TelemetryCard(viewModel: MainViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF0F172A).copy(alpha = 0.5f))
+                    .background(BgCardSecondary)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -792,7 +792,7 @@ fun TelemetryCard(viewModel: MainViewModel) {
                         checkedThumbColor = ColorSafe,
                         checkedTrackColor = ColorSafe.copy(alpha = 0.3f),
                         uncheckedThumbColor = TextSecondary,
-                        uncheckedTrackColor = Color(0xFF1E293B)
+                        uncheckedTrackColor = Color(0xFF102F15)
                     )
                 )
             }
@@ -849,11 +849,7 @@ fun TelemetryStatItem(
         modifier = modifier
             .height(108.dp)
             .liquidGlass(
-                shape = RoundedCornerShape(12.dp),
-                bgStartColor = Color(0xFF0F172A).copy(alpha = 0.60f),
-                bgEndColor = Color(0xFF07090F).copy(alpha = 0.80f),
-                topBorderColor = Color.White.copy(alpha = 0.20f),
-                bottomBorderColor = Color.White.copy(alpha = 0.03f)
+                shape = RoundedCornerShape(12.dp)
             )
     ) {
         Column(

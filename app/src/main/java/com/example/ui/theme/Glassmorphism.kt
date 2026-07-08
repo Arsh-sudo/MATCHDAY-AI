@@ -26,10 +26,10 @@ import androidx.compose.ui.unit.dp
 fun Modifier.liquidGlass(
     shape: Shape = RoundedCornerShape(24.dp),
     borderWidth: Dp = 1.2.dp,
-    topBorderColor: Color = Color.White.copy(alpha = 0.35f),
-    bottomBorderColor: Color = Color.White.copy(alpha = 0.05f),
-    bgStartColor: Color = Color(0xFF1B2535).copy(alpha = 0.70f),
-    bgEndColor: Color = Color(0xFF0F1522).copy(alpha = 0.90f)
+    topBorderColor: Color = Color(0x404ADE80), // 25% emerald green for high-tech border
+    bottomBorderColor: Color = Color(0x0D4ADE80),
+    bgStartColor: Color = Color(0xFF163E1F).copy(alpha = 0.70f), // Soft dark-green turf start
+    bgEndColor: Color = Color(0xFF06140A).copy(alpha = 0.95f)   // Deep field-night end
 ): Modifier = this
     .clip(shape)
     .background(

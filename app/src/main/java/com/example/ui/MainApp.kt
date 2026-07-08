@@ -86,7 +86,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                         DropdownMenu(
                                             expanded = showLogoutMenu,
                                             onDismissRequest = { showLogoutMenu = false },
-                                            modifier = Modifier.background(Color(0xFF0F172A))
+                                            modifier = Modifier.background(BgMain)
                                         ) {
                                             DropdownMenuItem(
                                                 text = {
@@ -174,7 +174,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                             .fillMaxWidth()
                             .height(84.dp)
                             .clip(RoundedCornerShape(42.dp))
-                            .background(Color(0xFF0F172A).copy(alpha = 0.9f))
+                            .background(BgMain.copy(alpha = 0.95f))
                             .border(1.dp, GlassBorder, RoundedCornerShape(42.dp))
                     ) {
                         Row(
@@ -218,14 +218,14 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                         modifier = Modifier
                             .offset(y = (-32).dp)
                             .size(72.dp)
-                            .background(Color(0xFF0F172A), CircleShape)
+                            .background(BgMain, CircleShape)
                             .padding(6.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(CircleShape)
-                                .background(Brush.linearGradient(listOf(Color(0xFF003366), Color(0xFF0055FF))))
+                                .background(Brush.linearGradient(listOf(AccentDark, AccentLight)))
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,

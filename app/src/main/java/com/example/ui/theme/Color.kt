@@ -2,36 +2,37 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val BgMain = Color(0xFF07090F)
-val BgCard = Color(0x1AFFFFFF) // 10% white
-val BgCardSecondary = Color(0x0DFFFFFF) // 5% white
-val BorderColor = Color(0x1AFFFFFF)
+val BgMain = Color(0xFF06140A) // Deep stadium turf at night
+val BgCard = Color(0x221B4323) // Grass-tinted semi-transparent card
+val BgCardSecondary = Color(0x111B4323) // Lighter grass-tinted background
+val BorderColor = Color(0x334ADE80) // Soft emerald/grass green border
 
-val TextPrimary = Color(0xFFFFFFFF)
-val TextSecondary = Color(0xFFA0AEC0)
+val TextPrimary = Color(0xFFF0FDF4) // Fresh off-white with a hint of mint
+val TextSecondary = Color(0xFFA7F3D0) // Minty light green for secondary text
 
-val AccentLight = Color(0xFF00E5FF) // Neon Blue
-val AccentDark = Color(0xFF0055FF)
+val AccentLight = Color(0xFF22C55E) // Vibrant turf green
+val AccentDark = Color(0xFF15803D) // Deep pitch green
 
 // Operational Colors
-val ColorSafe = Color(0xFF00FF66)      // Neon Green
-val ColorAttention = Color(0xFFFFCC00) // Warning Yellow
-val ColorCritical = Color(0xFFFF3B30)  // Neon Red
+val ColorSafe = Color(0xFF4ADE80)      // Fresh light green
+val ColorAttention = Color(0xFFFFDE43) // Warning Yellow (Referee card)
+val ColorCritical = Color(0xFFEF4444)  // Warning Red (Referee card)
 
 // AI Branding Colors
-val ColorAiBlue = Color(0xFF00E5FF)
-val ColorAiPurple = Color(0xFF8B5CF6)
-val ColorAiGradientStart = Color(0xFF00E5FF)
-val ColorAiGradientEnd = Color(0xFF8B5CF6)
+val ColorAiBlue = Color(0xFF10B981) // Emerald green
+val ColorAiPurple = Color(0xFF84CC16) // Lime green
+val ColorAiGradientStart = Color(0xFF22C55E)
+val ColorAiGradientEnd = Color(0xFF84CC16)
 
-val UserBubbleBg = Color(0x1AFFFFFF)
-val UserBubbleText = Color(0xFFFFFFFF)
+val UserBubbleBg = Color(0x2222C55E)
+val UserBubbleText = Color(0xFFF0FDF4)
 
-val AiBubbleBg = Color(0x1A00F0FF) // Tinted dark surface
+val AiBubbleBg = Color(0x2210B981) // Tinted dark emerald surface
 
-val GlassBg = Color(0x0AFFFFFF)
-val GlassBorder = Color(0x1AFFFFFF)
+val GlassBg = Color(0x15102F15)
+val GlassBorder = Color(0x284ADE80)
 
-val ColorSafeDark = Color(0xFF003311)
-val ColorAttentionDark = Color(0xFF332200)
-val ColorCriticalDark = Color(0xFF330011)
+val ColorSafeDark = Color(0xFF052E16)
+val ColorAttentionDark = Color(0xFF451A03)
+val ColorCriticalDark = Color(0xFF450A0A)
+

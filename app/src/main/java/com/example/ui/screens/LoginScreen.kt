@@ -118,7 +118,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0xFF0F172A), CircleShape),
+                        .background(BgMain, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -169,7 +169,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                 ) {
                     // Fan tab
                     val fanTabBg by animateColorAsState(
-                        targetValue = if (activeTab == 0) Color(0xFF1E293B) else Color.Transparent,
+                        targetValue = if (activeTab == 0) Color(0xFF153D1C) else Color.Transparent,
                         label = "fan_bg"
                     )
                     val fanTabTextColor by animateColorAsState(
@@ -197,7 +197,7 @@ fun LoginScreen(viewModel: MainViewModel) {
 
                     // Operations tab
                     val opsTabBg by animateColorAsState(
-                        targetValue = if (activeTab == 1) Color(0xFF1E293B) else Color.Transparent,
+                        targetValue = if (activeTab == 1) Color(0xFF153D1C) else Color.Transparent,
                         label = "ops_bg"
                     )
                     val opsTabTextColor by animateColorAsState(
@@ -340,7 +340,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Brush.linearGradient(listOf(Color(0xFF003366), Color(0xFF0055FF))))
+                                    .background(Brush.linearGradient(listOf(AccentDark, AccentLight)))
                                     .border(1.dp, ColorAiBlue.copy(alpha = 0.4f), RoundedCornerShape(28.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -428,7 +428,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             DropdownMenu(
                                 expanded = showRoleMenu,
                                 onDismissRequest = { showRoleMenu = false },
-                                modifier = Modifier.background(Color(0xFF0F172A))
+                                modifier = Modifier.background(BgMain)
                             ) {
                                 listOf("Operations Manager", "Security Lead", "Volunteer Lead", "Transit Coordinator").forEach { role ->
                                     DropdownMenuItem(
@@ -470,7 +470,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Brush.linearGradient(listOf(ColorAiPurple, Color(0xFF6D28D9))))
+                                    .background(Brush.linearGradient(listOf(ColorAiPurple, ColorAiBlue)))
                                     .border(1.dp, ColorAiPurple.copy(alpha = 0.4f), RoundedCornerShape(28.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -488,6 +488,58 @@ fun LoginScreen(viewModel: MainViewModel) {
         }
     }
 }
+}
+
+class RetroPaintResources {
+    val paintGrass = Paint()
+    val linePaint = Paint().apply {
+        color = android.graphics.Color.argb((0.45f * 255).toInt(), 255, 255, 255)
+        style = Paint.Style.STROKE
+        strokeWidth = 1f
+    }
+    val fillWhitePaint = Paint().apply {
+        color = android.graphics.Color.argb((0.45f * 255).toInt(), 255, 255, 255)
+        style = Paint.Style.FILL
+    }
+    val arcPaint = Paint().apply {
+        color = android.graphics.Color.argb((0.45f * 255).toInt(), 255, 255, 255)
+        style = Paint.Style.STROKE
+        strokeWidth = 1f
+    }
+    val goalPaint = Paint().apply {
+        color = android.graphics.Color.argb((0.85f * 255).toInt(), 255, 255, 255)
+        style = Paint.Style.STROKE
+        strokeWidth = 1f
+    }
+    val netPaint = Paint().apply {
+        color = android.graphics.Color.argb((0.25f * 255).toInt(), 255, 255, 255)
+        strokeWidth = 0.5f
+    }
+    val polePaint = Paint().apply {
+        color = 0xFFE29578.toInt()
+        strokeWidth = 0.5f
+    }
+    val flagPaint = Paint().apply {
+        color = 0xFFEF4444.toInt()
+        style = Paint.Style.FILL
+    }
+    val shadowPaint = Paint().apply {
+        color = android.graphics.Color.argb((0.35f * 255).toInt(), 0, 0, 0)
+        style = Paint.Style.FILL
+    }
+    val whiteBallPaint = Paint().apply {
+        color = android.graphics.Color.WHITE
+        style = Paint.Style.FILL
+    }
+    val blackBallPaint = Paint().apply {
+        color = 0xFF1E293B.toInt()
+        style = Paint.Style.FILL
+    }
+    val confettiPaint = Paint().apply {
+        style = Paint.Style.FILL
+    }
+    val textShadowPaint = Paint()
+    val textMainPaint = Paint()
 }
 
 @Composable
@@ -690,197 +742,7 @@ fun FootballPitchBackground() {
             }
         }
 
-        // Draw everything onto the low-res bitmap
-        retroBitmap?.let { bitmap ->
-            val canvas = android.graphics.Canvas(bitmap)
-            canvas.drawColor(android.graphics.Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR)
-
-            val lowResW = w.toFloat()
-            val lowResH = h.toFloat()
-
-            // 1. Draw grass stripes
-            val stripesCount = 14
-            val stripeHeight = lowResH / stripesCount
-            val paintGrass = android.graphics.Paint()
-            for (i in 0 until stripesCount) {
-                paintGrass.color = if (i % 2 == 0) 0xFF133F17.toInt() else 0xFF103613.toInt()
-                canvas.drawRect(0f, i * stripeHeight, lowResW, (i + 1) * stripeHeight, paintGrass)
-            }
-
-            // 2. White Lines (Field marking paint)
-            val linePaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.argb((0.45f * 255).toInt(), 255, 255, 255)
-                style = android.graphics.Paint.Style.STROKE
-                strokeWidth = 1f
-            }
-
-            val pad = 4f
-            val pw = lowResW - 2 * pad
-            val ph = lowResH - 2 * pad
-
-            // Outer pitch line
-            canvas.drawRect(pad, pad, lowResW - pad, lowResH - pad, linePaint)
-
-            // Midfield line
-            val midY = lowResH / 2f
-            canvas.drawLine(pad, midY, lowResW - pad, midY, linePaint)
-
-            // Center spot and circle
-            val centerCircleRadius = 12f
-            canvas.drawCircle(lowResW / 2f, midY, centerCircleRadius, linePaint)
-            
-            val fillWhitePaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.argb((0.45f * 255).toInt(), 255, 255, 255)
-                style = android.graphics.Paint.Style.FILL
-            }
-            canvas.drawCircle(lowResW / 2f, midY, 1f, fillWhitePaint)
-
-            // Penalty boxes
-            val penBoxWidth = pw * 0.60f
-            val penBoxHeight = ph * 0.12f
-            val penBoxLeft = pad + (pw - penBoxWidth) / 2f
-            canvas.drawRect(penBoxLeft, pad, penBoxLeft + penBoxWidth, pad + penBoxHeight, linePaint)
-            canvas.drawRect(penBoxLeft, lowResH - pad - penBoxHeight, penBoxLeft + penBoxWidth, lowResH - pad, linePaint)
-
-            // Goal areas
-            val goalAreaWidth = pw * 0.28f
-            val goalAreaHeight = ph * 0.04f
-            val goalAreaLeft = pad + (pw - goalAreaWidth) / 2f
-            canvas.drawRect(goalAreaLeft, pad, goalAreaLeft + goalAreaWidth, pad + goalAreaHeight, linePaint)
-            canvas.drawRect(goalAreaLeft, lowResH - pad - goalAreaHeight, goalAreaLeft + goalAreaWidth, lowResH - pad, linePaint)
-
-            // Penalty spots
-            val penaltySpotDist = ph * 0.085f
-            canvas.drawCircle(lowResW / 2f, pad + penaltySpotDist, 0.75f, fillWhitePaint)
-            canvas.drawCircle(lowResW / 2f, lowResH - pad - penaltySpotDist, 0.75f, fillWhitePaint)
-
-            // Corner Arcs
-            val cornerRadius = 3f
-            val arcPaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.argb((0.45f * 255).toInt(), 255, 255, 255)
-                style = android.graphics.Paint.Style.STROKE
-                strokeWidth = 1f
-            }
-            // Top-left
-            canvas.drawArc(pad - cornerRadius, pad - cornerRadius, pad + cornerRadius, pad + cornerRadius, 0f, 90f, false, arcPaint)
-            // Top-right
-            canvas.drawArc(lowResW - pad - cornerRadius, pad - cornerRadius, lowResW - pad + cornerRadius, pad + cornerRadius, 90f, 90f, false, arcPaint)
-            // Bottom-left
-            canvas.drawArc(pad - cornerRadius, lowResH - pad - cornerRadius, pad + cornerRadius, lowResH - pad + cornerRadius, 270f, 90f, false, arcPaint)
-            // Bottom-right
-            canvas.drawArc(lowResW - pad - cornerRadius, lowResH - pad - cornerRadius, lowResW - pad + cornerRadius, lowResH - pad + cornerRadius, 180f, 90f, false, arcPaint)
-
-            // 3. Goal posts
-            val goalWidth = pw * 0.22f
-            val goalDepth = 3f
-            val goalLeft = pad + (pw - goalWidth) / 2f
-            val goalRight = goalLeft + goalWidth
-
-            val goalPaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.argb((0.85f * 255).toInt(), 255, 255, 255)
-                style = android.graphics.Paint.Style.STROKE
-                strokeWidth = 1f
-            }
-
-            // Top goal
-            canvas.drawRect(goalLeft, pad - goalDepth, goalRight, pad, goalPaint)
-            // Net mesh vertical lines
-            val netPaint = android.graphics.Paint().apply {
-                color = android.graphics.Color.argb((0.25f * 255).toInt(), 255, 255, 255)
-                strokeWidth = 0.5f
-            }
-            for (gx in 1..4) {
-                val stepX = goalWidth / 5f
-                canvas.drawLine(goalLeft + gx * stepX, pad, goalLeft + gx * stepX, pad - goalDepth, netPaint)
-            }
-
-            // Bottom goal
-            canvas.drawRect(goalLeft, lowResH - pad, goalRight, lowResH - pad + goalDepth, goalPaint)
-            for (gx in 1..4) {
-                val stepX = goalWidth / 5f
-                canvas.drawLine(goalLeft + gx * stepX, lowResH - pad, goalLeft + gx * stepX, lowResH - pad + goalDepth, netPaint)
-            }
-
-            // 4. Corner Flags
-            val flagPoleHeight = 3f
-            val flagSize = 1.5f
-            val cornerCoords = listOf(
-                Offset(pad, pad),
-                Offset(lowResW - pad, pad),
-                Offset(pad, lowResH - pad),
-                Offset(lowResW - pad, lowResH - pad)
-            )
-            val polePaint = android.graphics.Paint().apply {
-                color = 0xFFE29578.toInt()
-                strokeWidth = 0.5f
-            }
-            val flagPaint = android.graphics.Paint().apply {
-                color = 0xFFEF4444.toInt()
-                style = android.graphics.Paint.Style.FILL
-            }
-            cornerCoords.forEach { coord ->
-                // Pole
-                canvas.drawLine(coord.x, coord.y, coord.x, coord.y - flagPoleHeight, polePaint)
-                // Red flag (pixel rect)
-                canvas.drawRect(coord.x, coord.y - flagPoleHeight, coord.x + flagSize, coord.y - flagPoleHeight + flagSize, flagPaint)
-            }
-
-            // 5. Draw the 2D pixelated football!
-            if (initialized) {
-                // Ball shadow
-                val shadowPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.argb((0.35f * 255).toInt(), 0, 0, 0)
-                    style = android.graphics.Paint.Style.FILL
-                }
-                canvas.drawRect(ballX - ballRadius, ballY - ballRadius + 0.5f, ballX + ballRadius, ballY + ballRadius + 0.5f, shadowPaint)
-
-                // White base (using rects for blocky style)
-                val whiteBallPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.WHITE
-                    style = android.graphics.Paint.Style.FILL
-                }
-                // Rounded blocky circle
-                canvas.drawRect(ballX - 2.5f, ballY - 3.5f, ballX + 2.5f, ballY + 3.5f, whiteBallPaint)
-                canvas.drawRect(ballX - 3.5f, ballY - 2.5f, ballX + 3.5f, ballY + 2.5f, whiteBallPaint)
-
-                // Inner retro patterns (pixel detailing)
-                val blackBallPaint = android.graphics.Paint().apply {
-                    color = 0xFF1E293B.toInt()
-                    style = android.graphics.Paint.Style.FILL
-                }
-                // Central pixel block
-                canvas.drawRect(ballX - 1f, ballY - 1f, ballX + 1f, ballY + 1f, blackBallPaint)
-                // Diagonal pixels to look like classic football panels
-                canvas.drawRect(ballX - 2.5f, ballY - 2.5f, ballX - 1.5f, ballY - 1.5f, blackBallPaint)
-                canvas.drawRect(ballX + 1.5f, ballY - 2.5f, ballX + 2.5f, ballY - 1.5f, blackBallPaint)
-                canvas.drawRect(ballX - 2.5f, ballY + 1.5f, ballX - 1.5f, ballY + 2.5f, blackBallPaint)
-                canvas.drawRect(ballX + 1.5f, ballY + 1.5f, ballX + 2.5f, ballY + 2.5f, blackBallPaint)
-            }
-
-            // 6. Confetti falling slowly (slow, colorful pixel squares)
-            confettiList.forEach { p ->
-                val pPaint = android.graphics.Paint().apply {
-                    color = p.color
-                    style = android.graphics.Paint.Style.FILL
-                }
-                canvas.drawRect(p.x, p.y, p.x + p.size, p.y + p.size, pPaint)
-            }
-
-            // 7. GOAL! Text pop, fade-in, fade-out animation
-            if (goalState.active) {
-                val textY = if (goalState.isTop) pad + 15f else lowResH - pad - 20f
-                drawPixelText(
-                    text = "GOAL!",
-                    centerX = lowResW / 2f,
-                    centerY = textY,
-                    size = 1.2f, // scaled retro letter pixels
-                    color = 0xFFFFEB3B.toInt(), // Retro arcade yellow
-                    scale = goalState.scale,
-                    alpha = goalState.alpha,
-                    canvas = canvas
-                )
-            }
-        }
+        val paints = remember { RetroPaintResources() }
 
         // Draw low-res bitmap scaled up using Nearest-Neighbor interpolation (FilterQuality.None)
         Canvas(
@@ -902,6 +764,157 @@ fun FootballPitchBackground() {
                     }
                 }
         ) {
+            // Read state values inside drawing block to trigger draw phase only, bypassing recomposition
+            val bx = ballX
+            val by = ballY
+            val gsActive = goalState.active
+            val gsIsTop = goalState.isTop
+            val gsScale = goalState.scale
+            val gsAlpha = goalState.alpha
+
+            retroBitmap?.let { bitmap ->
+                val canvas = android.graphics.Canvas(bitmap)
+                canvas.drawColor(android.graphics.Color.TRANSPARENT, android.graphics.PorterDuff.Mode.CLEAR)
+
+                val lowResW = w.toFloat()
+                val lowResH = h.toFloat()
+
+                // 1. Draw grass stripes
+                val stripesCount = 14
+                val stripeHeight = lowResH / stripesCount
+                for (i in 0 until stripesCount) {
+                    paints.paintGrass.color = if (i % 2 == 0) 0xFF133F17.toInt() else 0xFF103613.toInt()
+                    canvas.drawRect(0f, i * stripeHeight, lowResW, (i + 1) * stripeHeight, paints.paintGrass)
+                }
+
+                // 2. White Lines (Field marking paint)
+                val pad = 4f
+                val pw = lowResW - 2 * pad
+                val ph = lowResH - 2 * pad
+
+                // Outer pitch line
+                canvas.drawRect(pad, pad, lowResW - pad, lowResH - pad, paints.linePaint)
+
+                // Midfield line
+                val midY = lowResH / 2f
+                canvas.drawLine(pad, midY, lowResW - pad, midY, paints.linePaint)
+
+                // Center spot and circle
+                val centerCircleRadius = 12f
+                canvas.drawCircle(lowResW / 2f, midY, centerCircleRadius, paints.linePaint)
+                canvas.drawCircle(lowResW / 2f, midY, 1f, paints.fillWhitePaint)
+
+                // Penalty boxes
+                val penBoxWidth = pw * 0.60f
+                val penBoxHeight = ph * 0.12f
+                val penBoxLeft = pad + (pw - penBoxWidth) / 2f
+                canvas.drawRect(penBoxLeft, pad, penBoxLeft + penBoxWidth, pad + penBoxHeight, paints.linePaint)
+                canvas.drawRect(penBoxLeft, lowResH - pad - penBoxHeight, penBoxLeft + penBoxWidth, lowResH - pad, paints.linePaint)
+
+                // Goal areas
+                val goalAreaWidth = pw * 0.28f
+                val goalAreaHeight = ph * 0.04f
+                val goalAreaLeft = pad + (pw - goalAreaWidth) / 2f
+                canvas.drawRect(goalAreaLeft, pad, goalAreaLeft + goalAreaWidth, pad + goalAreaHeight, paints.linePaint)
+                canvas.drawRect(goalAreaLeft, lowResH - pad - goalAreaHeight, goalAreaLeft + goalAreaWidth, lowResH - pad, paints.linePaint)
+
+                // Penalty spots
+                val penaltySpotDist = ph * 0.085f
+                canvas.drawCircle(lowResW / 2f, pad + penaltySpotDist, 0.75f, paints.fillWhitePaint)
+                canvas.drawCircle(lowResW / 2f, lowResH - pad - penaltySpotDist, 0.75f, paints.fillWhitePaint)
+
+                // Corner Arcs
+                val cornerRadius = 3f
+                // Top-left
+                canvas.drawArc(pad - cornerRadius, pad - cornerRadius, pad + cornerRadius, pad + cornerRadius, 0f, 90f, false, paints.arcPaint)
+                // Top-right
+                canvas.drawArc(lowResW - pad - cornerRadius, pad - cornerRadius, lowResW - pad + cornerRadius, pad + cornerRadius, 90f, 90f, false, paints.arcPaint)
+                // Bottom-left
+                canvas.drawArc(pad - cornerRadius, lowResH - pad - cornerRadius, pad + cornerRadius, lowResH - pad + cornerRadius, 270f, 90f, false, paints.arcPaint)
+                // Bottom-right
+                canvas.drawArc(lowResW - pad - cornerRadius, lowResH - pad - cornerRadius, lowResW - pad + cornerRadius, lowResH - pad + cornerRadius, 180f, 90f, false, paints.arcPaint)
+
+                // 3. Goal posts
+                val goalWidth = pw * 0.22f
+                val goalDepth = 3f
+                val goalLeft = pad + (pw - goalWidth) / 2f
+                val goalRight = goalLeft + goalWidth
+
+                // Top goal
+                canvas.drawRect(goalLeft, pad - goalDepth, goalRight, pad, paints.goalPaint)
+                // Net mesh vertical lines
+                for (gx in 1..4) {
+                    val stepX = goalWidth / 5f
+                    canvas.drawLine(goalLeft + gx * stepX, pad, goalLeft + gx * stepX, pad - goalDepth, paints.netPaint)
+                }
+
+                // Bottom goal
+                canvas.drawRect(goalLeft, lowResH - pad, goalRight, lowResH - pad + goalDepth, paints.goalPaint)
+                for (gx in 1..4) {
+                    val stepX = goalWidth / 5f
+                    canvas.drawLine(goalLeft + gx * stepX, lowResH - pad, goalLeft + gx * stepX, lowResH - pad + goalDepth, paints.netPaint)
+                }
+
+                // 4. Corner Flags
+                val flagPoleHeight = 3f
+                val flagSize = 1.5f
+                val cornerCoords = listOf(
+                    Offset(pad, pad),
+                    Offset(lowResW - pad, pad),
+                    Offset(pad, lowResH - pad),
+                    Offset(lowResW - pad, lowResH - pad)
+                )
+                cornerCoords.forEach { coord ->
+                    // Pole
+                    canvas.drawLine(coord.x, coord.y, coord.x, coord.y - flagPoleHeight, paints.polePaint)
+                    // Red flag (pixel rect)
+                    canvas.drawRect(coord.x, coord.y - flagPoleHeight, coord.x + flagSize, coord.y - flagPoleHeight + flagSize, paints.flagPaint)
+                }
+
+                // 5. Draw the 2D pixelated football!
+                if (initialized) {
+                    // Ball shadow
+                    canvas.drawRect(bx - ballRadius, by - ballRadius + 0.5f, bx + ballRadius, by + ballRadius + 0.5f, paints.shadowPaint)
+
+                    // White base (using rects for blocky style)
+                    // Rounded blocky circle
+                    canvas.drawRect(bx - 2.5f, by - 3.5f, bx + 2.5f, by + 3.5f, paints.whiteBallPaint)
+                    canvas.drawRect(bx - 3.5f, by - 2.5f, bx + 3.5f, by + 2.5f, paints.whiteBallPaint)
+
+                    // Inner retro patterns (pixel detailing)
+                    // Central pixel block
+                    canvas.drawRect(bx - 1f, by - 1f, bx + 1f, by + 1f, paints.blackBallPaint)
+                    // Diagonal pixels to look like classic football panels
+                    canvas.drawRect(bx - 2.5f, by - 2.5f, bx - 1.5f, by - 1.5f, paints.blackBallPaint)
+                    canvas.drawRect(bx + 1.5f, by - 2.5f, bx + 2.5f, by - 1.5f, paints.blackBallPaint)
+                    canvas.drawRect(bx - 2.5f, by + 1.5f, bx - 1.5f, by + 2.5f, paints.blackBallPaint)
+                    canvas.drawRect(bx + 1.5f, by + 1.5f, bx + 2.5f, by + 2.5f, paints.blackBallPaint)
+                }
+
+                // 6. Confetti falling slowly (slow, colorful pixel squares)
+                confettiList.forEach { p ->
+                    paints.confettiPaint.color = p.color
+                    canvas.drawRect(p.x, p.y, p.x + p.size, p.y + p.size, paints.confettiPaint)
+                }
+
+                // 7. GOAL! Text pop, fade-in, fade-out animation
+                if (gsActive) {
+                    val textY = if (gsIsTop) pad + 15f else lowResH - pad - 20f
+                    drawPixelText(
+                        text = "GOAL!",
+                        centerX = lowResW / 2f,
+                        centerY = textY,
+                        size = 1.2f, // scaled retro letter pixels
+                        color = 0xFFFFEB3B.toInt(), // Retro arcade yellow
+                        scale = gsScale,
+                        alpha = gsAlpha,
+                        canvas = canvas,
+                        shadowPaint = paints.textShadowPaint,
+                        textPaint = paints.textMainPaint
+                    )
+                }
+            }
+
             retroBitmap?.let { bitmap ->
                 drawImage(
                     image = bitmap.asImageBitmap(),
@@ -985,7 +998,18 @@ fun drawPixelLetter(char: Char, x: Float, y: Float, size: Float, paint: android.
 }
 
 // Pixel text rendering logic
-fun drawPixelText(text: String, centerX: Float, centerY: Float, size: Float, color: Int, scale: Float, alpha: Float, canvas: android.graphics.Canvas) {
+fun drawPixelText(
+    text: String,
+    centerX: Float,
+    centerY: Float,
+    size: Float,
+    color: Int,
+    scale: Float,
+    alpha: Float,
+    canvas: android.graphics.Canvas,
+    shadowPaint: android.graphics.Paint,
+    textPaint: android.graphics.Paint
+) {
     val letterWidth = 5f * size
     val gap = 1f * size
     val totalWidth = text.length * letterWidth + (text.length - 1) * gap
@@ -995,15 +1019,11 @@ fun drawPixelText(text: String, centerX: Float, centerY: Float, size: Float, col
     canvas.save()
     canvas.scale(scale, scale, centerX, centerY)
 
-    val shadowPaint = android.graphics.Paint().apply {
-        this.color = android.graphics.Color.argb((alpha * 220).toInt(), 0, 0, 0)
-    }
-    val textPaint = android.graphics.Paint().apply {
-        this.color = android.graphics.Color.argb((alpha * 255).toInt(), 
-            android.graphics.Color.red(color), 
-            android.graphics.Color.green(color), 
-            android.graphics.Color.blue(color))
-    }
+    shadowPaint.color = android.graphics.Color.argb((alpha * 220).toInt(), 0, 0, 0)
+    textPaint.color = android.graphics.Color.argb((alpha * 255).toInt(), 
+        android.graphics.Color.red(color), 
+        android.graphics.Color.green(color), 
+        android.graphics.Color.blue(color))
 
     // Draw shadow first (bottom right offset by 0.6f pixel size)
     var curX = startX

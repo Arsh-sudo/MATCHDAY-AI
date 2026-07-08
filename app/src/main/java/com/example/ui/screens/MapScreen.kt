@@ -398,8 +398,8 @@ fun GateLabel(text: String, color: Color, isSelected: Boolean, onClick: () -> Un
                 borderWidth = if (isSelected) 2.dp else 1.dp,
                 topBorderColor = if (isSelected) color else Color.White.copy(alpha = 0.25f),
                 bottomBorderColor = if (isSelected) color.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.05f),
-                bgStartColor = if (isSelected) color.copy(alpha = 0.35f) else Color(0xFF0F172A).copy(alpha = 0.60f),
-                bgEndColor = if (isSelected) color.copy(alpha = 0.15f) else Color(0xFF07090F).copy(alpha = 0.80f)
+                bgStartColor = if (isSelected) color.copy(alpha = 0.35f) else Color(0xFF163E1F).copy(alpha = 0.60f),
+                bgEndColor = if (isSelected) color.copy(alpha = 0.15f) else Color(0xFF06140A).copy(alpha = 0.80f)
             )
     ) {
         Text(
