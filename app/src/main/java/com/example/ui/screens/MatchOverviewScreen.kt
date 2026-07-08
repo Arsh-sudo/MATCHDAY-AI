@@ -106,7 +106,7 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 StatRing("POSSESSION", "${state.mexPossessionPct}%", state.mexPossessionPct / 100f, ColorSafe)
-                StatRing("ATTEMPTS", "${state.mexShots}", (state.mexShots / 20f).coerceAtMost(1f), ColorAiBlue)
+                StatRing("ATTEMPTS", "${state.mexShots}", (state.mexShots / 15f).coerceAtMost(1f), ColorAiBlue)
                 StatRing("CORNERS", "${state.mexCorners}", (state.mexCorners / 12f).coerceAtMost(1f), ColorAiPurple)
             }
             Spacer(modifier = Modifier.height(48.dp))

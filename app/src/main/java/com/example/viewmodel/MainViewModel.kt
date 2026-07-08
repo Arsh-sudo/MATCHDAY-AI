@@ -364,13 +364,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 nextMexPossession = nextMexPossession.coerceIn(40, 65)
 
                 var nextMexShots = current.mexShots
-                if ((1..20).random() == 1) nextMexShots += 1
+                if (nextMinutes < 90 && (1..20).random() == 1) nextMexShots += 1
 
                 var nextMexCorners = current.mexCorners
-                if ((1..15).random() == 1) nextMexCorners += 1
+                if (nextMinutes < 90 && (1..15).random() == 1) nextMexCorners += 1
                 
                 var nextMexFouls = current.mexFouls
-                if ((1..10).random() == 1) nextMexFouls += 1
+                if (nextMinutes < 90 && (1..10).random() == 1) nextMexFouls += 1
                 
                 _dashboardState.value = DashboardState(
                     gate7Density = nextGate7Density,
