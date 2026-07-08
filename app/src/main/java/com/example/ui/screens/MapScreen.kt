@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -79,6 +84,11 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
 
     val currentGateInfo = gateData[selectedGate] ?: GateInfo("GATE 7", "NORMAL DENSITY", ColorSafe, false, "Stable flow expected", "Confidence 96%", "0", "0 min", "0", "4/4", listOf(0f))
 
+    var isVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -88,6 +98,11 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
     ) {
         // Custom Header with Back Button and Settings
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(tween(800)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -114,10 +129,16 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                     Icon(Icons.Default.Settings, contentDescription = "Settings", tint = TextPrimary)
                 }
             }
+            }
         }
 
         // Stadium Visual Map
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 200)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -215,10 +236,16 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                     GateLabel("GATE 7", gateData["GATE 7"]?.statusColor ?: ColorSafe, selectedGate == "GATE 7") { selectedGate = "GATE 7" }
                 }
             }
+            }
         }
 
         // Legend row
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(800, delayMillis = 300)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -247,10 +274,16 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                     fontWeight = FontWeight.Medium
                 )
             }
+            }
         }
 
         // Selected Gate Info Card
         item {
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 400)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
             Surface(
                 color = Color(0xFF1E293B).copy(alpha = 0.85f),
                 border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -352,6 +385,7 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                         GateStatItem(Icons.Default.MeetingRoom, "Exits Open", currentGateInfo.exits)
                     }
                 }
+            }
             }
         }
     }

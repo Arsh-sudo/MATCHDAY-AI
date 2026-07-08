@@ -8,9 +8,7 @@ for (let i = 0; i < lines.length; i++) {
         if (char === '{') depth++;
         if (char === '}') depth--;
     }
-    if (depth < 0) {
-        console.log('Negative depth at line ' + (i+1));
-        break;
+    if (line.includes('item {')) {
+        console.log((i+1) + ': ' + line.trim() + ' => depth ' + depth);
     }
 }
-console.log('Final depth: ' + depth);
