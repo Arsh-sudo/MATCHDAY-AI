@@ -136,7 +136,7 @@ fun LoginScreen(viewModel: MainViewModel) {
             Text(
                 text = "FIFA WORLD CUP 2026™",
                 color = AccentLight,
-                fontSize = 12.sp,
+                fontSize = 15.6.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp
             )
@@ -191,7 +191,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             text = "FAN PORTAL",
                             color = fanTabTextColor,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
+                            fontSize = 15.6.sp
                         )
                     }
 
@@ -219,7 +219,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             text = "OPERATIONS",
                             color = opsTabTextColor,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
+                            fontSize = 15.6.sp
                         )
                     }
                 }
@@ -250,8 +250,8 @@ fun LoginScreen(viewModel: MainViewModel) {
                         Text(
                             text = "Check in with your ticket reference to access live assistant, personalized wayfinding, and seat-specific services.",
                             color = TextSecondary,
-                            fontSize = 12.sp,
-                            lineHeight = 18.sp
+                            fontSize = 15.6.sp,
+                            lineHeight = 23.4.sp
                         )
 
                         OutlinedTextField(
@@ -261,15 +261,20 @@ fun LoginScreen(viewModel: MainViewModel) {
                             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = AccentLight) },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = AccentLight,
-                                unfocusedBorderColor = GlassBorder,
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
                                 focusedLabelColor = AccentLight,
                                 unfocusedLabelColor = TextSecondary,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth().testTag("fan_name_input")
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .liquidGlass(shape = RoundedCornerShape(16.dp))
+                                .testTag("fan_name_input")
                         )
 
                         OutlinedTextField(
@@ -280,15 +285,20 @@ fun LoginScreen(viewModel: MainViewModel) {
                             singleLine = true,
                             placeholder = { Text("WC-CDMX-402", color = TextSecondary.copy(alpha = 0.5f)) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = AccentLight,
-                                unfocusedBorderColor = GlassBorder,
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
                                 focusedLabelColor = AccentLight,
                                 unfocusedLabelColor = TextSecondary,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth().testTag("fan_ticket_input")
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .liquidGlass(shape = RoundedCornerShape(16.dp))
+                                .testTag("fan_ticket_input")
                         )
 
                         OutlinedTextField(
@@ -299,15 +309,20 @@ fun LoginScreen(viewModel: MainViewModel) {
                             singleLine = true,
                             placeholder = { Text("104-B", color = TextSecondary.copy(alpha = 0.5f)) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = AccentLight,
-                                unfocusedBorderColor = GlassBorder,
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
                                 focusedLabelColor = AccentLight,
                                 unfocusedLabelColor = TextSecondary,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth().testTag("fan_seat_input")
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .liquidGlass(shape = RoundedCornerShape(16.dp))
+                                .testTag("fan_seat_input")
                         )
 
                         if (fanError.isNotEmpty()) {
@@ -340,8 +355,13 @@ fun LoginScreen(viewModel: MainViewModel) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Brush.linearGradient(listOf(AccentDark, AccentLight)))
-                                    .border(1.dp, ColorAiBlue.copy(alpha = 0.4f), RoundedCornerShape(28.dp)),
+                                    .liquidGlass(
+                                        shape = RoundedCornerShape(28.dp),
+                                        topBorderColor = AccentLight.copy(alpha = 0.5f),
+                                        bottomBorderColor = AccentDark.copy(alpha = 0.2f),
+                                        bgStartColor = AccentLight.copy(alpha = 0.4f),
+                                        bgEndColor = AccentDark.copy(alpha = 0.7f)
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -361,8 +381,8 @@ fun LoginScreen(viewModel: MainViewModel) {
                         Text(
                             text = "Access unified operational metrics, real-time gate surges, live HD CCTV feeds, and GenAI-powered dispatch intelligence.",
                             color = TextSecondary,
-                            fontSize = 12.sp,
-                            lineHeight = 18.sp
+                            fontSize = 15.6.sp,
+                            lineHeight = 23.4.sp
                         )
 
                         OutlinedTextField(
@@ -470,8 +490,13 @@ fun LoginScreen(viewModel: MainViewModel) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Brush.linearGradient(listOf(ColorAiPurple, ColorAiBlue)))
-                                    .border(1.dp, ColorAiPurple.copy(alpha = 0.4f), RoundedCornerShape(28.dp)),
+                                    .liquidGlass(
+                                        shape = RoundedCornerShape(28.dp),
+                                        topBorderColor = ColorAiPurple.copy(alpha = 0.5f),
+                                        bottomBorderColor = ColorAiBlue.copy(alpha = 0.2f),
+                                        bgStartColor = ColorAiPurple.copy(alpha = 0.4f),
+                                        bgEndColor = ColorAiBlue.copy(alpha = 0.7f)
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
