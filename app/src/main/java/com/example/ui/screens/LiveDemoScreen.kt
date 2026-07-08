@@ -202,13 +202,11 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
                 // Role Selector Pill
                 Box(modifier = Modifier.weight(1f)) {
-                    Surface(
-                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable(enabled = loggedInUserType != "fan") { showRoleMenu = true }
+                            .liquidGlass(shape = RoundedCornerShape(12.dp))
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -255,13 +253,11 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
                 // Language Selector Pill
                 Box(modifier = Modifier.weight(1f)) {
-                    Surface(
-                        color = Color(0xFF1E293B).copy(alpha = 0.8f),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { showLangMenu = true }
+                            .liquidGlass(shape = RoundedCornerShape(12.dp))
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -469,15 +465,20 @@ fun ChatBubbleItem(message: ChatMessage, loggedInUserType: String, fanName: Stri
             Spacer(modifier = Modifier.width(8.dp))
         }
 
-        Surface(
-            color = if (message.isUser) Color(0xFF2563EB) else Color(0xFF1E293B).copy(alpha = 0.85f),
-            shape = if (message.isUser) {
-                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 4.dp)
-            } else {
-                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp)
-            },
-            border = if (message.isUser) null else androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-            modifier = Modifier.widthIn(max = 280.dp)
+        Box(
+            modifier = Modifier
+                .widthIn(max = 280.dp)
+                .liquidGlass(
+                    shape = if (message.isUser) {
+                        RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 4.dp)
+                    } else {
+                        RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp)
+                    },
+                    topBorderColor = if (message.isUser) Color(0xFF3B82F6).copy(alpha = 0.5f) else Color.White.copy(alpha = 0.25f),
+                    bottomBorderColor = if (message.isUser) Color(0xFF1D4ED8).copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
+                    bgStartColor = if (message.isUser) Color(0xFF2563EB).copy(alpha = 0.85f) else Color(0xFF1E293B).copy(alpha = 0.60f),
+                    bgEndColor = if (message.isUser) Color(0xFF1D4ED8).copy(alpha = 0.95f) else Color(0xFF0F172A).copy(alpha = 0.80f)
+                )
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
@@ -528,11 +529,12 @@ fun TypingIndicatorItem(typingStatus: String) {
             Icon(Icons.Default.AutoAwesome, contentDescription = "AI", tint = ColorAiBlue, modifier = Modifier.size(18.dp))
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Surface(
-            color = Color(0xFF1E293B).copy(alpha = 0.85f),
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-            modifier = Modifier.widthIn(max = 280.dp)
+        Box(
+            modifier = Modifier
+                .widthIn(max = 280.dp)
+                .liquidGlass(
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp)
+                )
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
@@ -554,12 +556,16 @@ fun TypingIndicatorItem(typingStatus: String) {
 
 @Composable
 fun ActionChip(text: String, isLoading: Boolean, onClick: () -> Unit) {
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = if (isLoading) 0.2f else 0.5f),
-        shape = RoundedCornerShape(20.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder.copy(alpha = if (isLoading) 0.3f else 1f)),
+    Box(
         modifier = Modifier
             .clickable(enabled = !isLoading, onClick = onClick)
+            .liquidGlass(
+                shape = RoundedCornerShape(20.dp),
+                topBorderColor = Color.White.copy(alpha = if (isLoading) 0.1f else 0.35f),
+                bottomBorderColor = Color.White.copy(alpha = 0.03f),
+                bgStartColor = Color(0xFF1B2535).copy(alpha = if (isLoading) 0.15f else 0.45f),
+                bgEndColor = Color(0xFF0F1522).copy(alpha = if (isLoading) 0.25f else 0.65f)
+            )
             .testTag("action_chip_${text.lowercase().replace(" ", "_")}")
     ) {
         Text(

@@ -166,13 +166,11 @@ fun LoginScreen(viewModel: MainViewModel) {
             Spacer(modifier = Modifier.height(32.dp))
 
             // Selector Tabs (Fan vs Staff)
-            Surface(
-                color = Color(0xFF0F172A).copy(alpha = 0.8f),
-                shape = RoundedCornerShape(20.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
+                    .liquidGlass(shape = RoundedCornerShape(20.dp))
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize().padding(4.dp),
@@ -417,13 +415,11 @@ fun LoginScreen(viewModel: MainViewModel) {
 
                         // Role Selector
                         Box(modifier = Modifier.fillMaxWidth()) {
-                            Surface(
-                                color = Color.Transparent,
-                                shape = RoundedCornerShape(16.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { showRoleMenu = true }
+                                    .liquidGlass(shape = RoundedCornerShape(16.dp))
                                     .testTag("staff_role_dropdown")
                             ) {
                                 Row(

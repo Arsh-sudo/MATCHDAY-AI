@@ -282,11 +282,10 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 400)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-            Surface(
-                color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .liquidGlass(shape = RoundedCornerShape(24.dp))
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Row(
@@ -391,14 +390,17 @@ fun MapScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds: (
 
 @Composable
 fun GateLabel(text: String, color: Color, isSelected: Boolean, onClick: () -> Unit) {
-    Surface(
-        color = if (isSelected) color.copy(alpha = 0.25f) else Color(0xFF0F172A).copy(alpha = 0.85f),
-        border = androidx.compose.foundation.BorderStroke(
-            width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) color else color.copy(alpha = 0.5f)
-        ),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.clickable(onClick = onClick)
+    Box(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .liquidGlass(
+                shape = RoundedCornerShape(12.dp),
+                borderWidth = if (isSelected) 2.dp else 1.dp,
+                topBorderColor = if (isSelected) color else Color.White.copy(alpha = 0.25f),
+                bottomBorderColor = if (isSelected) color.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.05f),
+                bgStartColor = if (isSelected) color.copy(alpha = 0.35f) else Color(0xFF0F172A).copy(alpha = 0.60f),
+                bgEndColor = if (isSelected) color.copy(alpha = 0.15f) else Color(0xFF07090F).copy(alpha = 0.80f)
+            )
     ) {
         Text(
             text = text,

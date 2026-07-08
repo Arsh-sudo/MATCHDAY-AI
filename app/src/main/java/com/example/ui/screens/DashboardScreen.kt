@@ -186,11 +186,11 @@ fun DashboardScreen(
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 500)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .liquidGlass()
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(
@@ -306,11 +306,11 @@ fun DashboardScreen(
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 700)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .liquidGlass()
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text("MATCH STATS AT ${state.matchMinutes}'", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
@@ -358,11 +358,11 @@ fun DashboardScreen(
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 800)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .liquidGlass()
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text("GROUP A LIVE STANDINGS", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
@@ -400,11 +400,11 @@ fun DashboardScreen(
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 400)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .liquidGlass()
                 ) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {
@@ -486,11 +486,14 @@ fun DashboardScreen(
                 val cardBorder = if (isIncident) ColorCritical.copy(alpha = 0.3f) else ColorSafe.copy(alpha = 0.3f)
                 val radialColor = if (isIncident) ColorCriticalDark.copy(alpha = 0.5f) else ColorSafeDark.copy(alpha = 0.3f)
                 
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .liquidGlass(
+                            topBorderColor = if (isIncident) ColorCritical.copy(alpha = 0.45f) else ColorSafe.copy(alpha = 0.45f),
+                            bottomBorderColor = if (isIncident) ColorCritical.copy(alpha = 0.1f) else ColorSafe.copy(alpha = 0.1f)
+                        )
                 ) {
                     Box(modifier = Modifier.fillMaxWidth().background(Brush.radialGradient(listOf(radialColor, Color.Transparent), radius = 500f))) {
                         Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -522,13 +525,11 @@ fun DashboardScreen(
                     enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 700)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                Surface(
-                    color = Color(0xFF1E293B).copy(alpha = 0.85f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-                    shape = RoundedCornerShape(20.dp),
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
+                        .liquidGlass()
                         .clickable { onNavigateToFeeds() }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -636,11 +637,10 @@ fun DashboardScreen(
 
 @Composable
 fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector?, iconColor: Color, value: String, subValue: String, subValueColor: Color, isCircular: Boolean = false, progress: Float = 0.8f, modifier: Modifier = Modifier) {
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.85f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(16.dp),
-        modifier = modifier.height(120.dp)
+    Box(
+        modifier = modifier
+            .height(120.dp)
+            .liquidGlass(shape = RoundedCornerShape(16.dp))
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -704,13 +704,11 @@ fun TelemetryCard(viewModel: MainViewModel) {
     val diff = (liveVibrationMagnitude - 9.81f).coerceAtLeast(0f)
     val cheeringIndex = (diff * 15f).coerceIn(0f, 100f).toInt()
 
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.85f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(20.dp),
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
+            .liquidGlass()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -847,11 +845,16 @@ fun TelemetryStatItem(
     iconColor: Color,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        color = Color(0xFF0F172A).copy(alpha = 0.7f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder.copy(alpha = 0.5f)),
-        shape = RoundedCornerShape(12.dp),
-        modifier = modifier.height(108.dp)
+    Box(
+        modifier = modifier
+            .height(108.dp)
+            .liquidGlass(
+                shape = RoundedCornerShape(12.dp),
+                bgStartColor = Color(0xFF0F172A).copy(alpha = 0.60f),
+                bgEndColor = Color(0xFF07090F).copy(alpha = 0.80f),
+                topBorderColor = Color.White.copy(alpha = 0.20f),
+                bottomBorderColor = Color.White.copy(alpha = 0.03f)
+            )
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -894,11 +897,11 @@ fun TelemetryStatItem(
 
 @Composable
 fun SustainabilityCard(state: com.example.viewmodel.DashboardState) {
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.85f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .liquidGlass()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(

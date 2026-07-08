@@ -88,11 +88,16 @@ fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds
                     enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 200)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Surface(
-                        color = ColorSafeDark.copy(alpha = 0.15f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.3f)),
-                        shape = RoundedCornerShape(24.dp),
-                        modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .liquidGlass(
+                                shape = RoundedCornerShape(24.dp),
+                                bgStartColor = ColorSafeDark.copy(alpha = 0.35f),
+                                bgEndColor = ColorSafeDark.copy(alpha = 0.15f),
+                                topBorderColor = ColorSafe.copy(alpha = 0.6f),
+                                bottomBorderColor = ColorSafe.copy(alpha = 0.1f)
+                            )
                     ) {
                         Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             Box(
@@ -154,11 +159,10 @@ fun AlertCard(title: String, subtitle: String, severityColor: Color, severityCol
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF1E293B).copy(alpha = 0.85f), RoundedCornerShape(20.dp))
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(listOf(severityColor, severityColorDark)),
-                shape = RoundedCornerShape(20.dp)
+            .liquidGlass(
+                shape = RoundedCornerShape(20.dp),
+                topBorderColor = severityColor.copy(alpha = 0.6f),
+                bottomBorderColor = severityColorDark.copy(alpha = 0.1f)
             )
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -198,11 +202,11 @@ fun EmergencyAlertCard(mins: Int, onDeploy: () -> Unit, onNavigateToFeeds: () ->
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF1E293B).copy(alpha = 0.85f), RoundedCornerShape(24.dp))
-            .border(
-                width = 2.dp,
-                brush = Brush.verticalGradient(listOf(ColorCritical, ColorCritical.copy(alpha = 0.2f))),
-                shape = RoundedCornerShape(24.dp)
+            .liquidGlass(
+                shape = RoundedCornerShape(24.dp),
+                borderWidth = 2.dp,
+                topBorderColor = ColorCritical,
+                bottomBorderColor = ColorCritical.copy(alpha = 0.2f)
             )
     ) {
         Column(modifier = Modifier.padding(24.dp)) {

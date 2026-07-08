@@ -81,7 +81,12 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(tween(800, delayMillis = 200)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .liquidGlass()
+                        .padding(vertical = 24.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -97,10 +102,15 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("${state.mexScore} - ${state.braScore}", color = TextPrimary, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-                            Surface(
-                                color = ColorSafeDark.copy(alpha = 0.3f),
-                                shape = RoundedCornerShape(12.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, ColorSafe.copy(alpha = 0.5f))
+                            Box(
+                                modifier = Modifier
+                                    .liquidGlass(
+                                        shape = RoundedCornerShape(12.dp),
+                                        bgStartColor = ColorSafeDark.copy(alpha = 0.5f),
+                                        bgEndColor = ColorSafeDark.copy(alpha = 0.2f),
+                                        topBorderColor = ColorSafe.copy(alpha = 0.6f),
+                                        bottomBorderColor = ColorSafe.copy(alpha = 0.1f)
+                                    )
                             ) {
                                 val formattedSeconds = String.format("%02d", state.matchSeconds)
                                 Text("${state.matchMinutes}:$formattedSeconds", color = ColorSafe, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
@@ -115,9 +125,9 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             Text("BRA", color = TextSecondary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         // Match Stats
@@ -127,21 +137,27 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(tween(800, delayMillis = 300)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        Text("MATCH STATS", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                        Spacer(modifier = Modifier.width(1.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .liquidGlass()
+                        .padding(20.dp)
+                ) {
+                    Column {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("MATCH STATS", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            StatRing("POSSESSION", "${state.mexPossessionPct}%", state.mexPossessionPct / 100f, ColorSafe)
+                            StatRing("ATTEMPTS", "${state.mexShots}", (state.mexShots / 15f).coerceAtMost(1f), ColorAiBlue)
+                            StatRing("CORNERS", "${state.mexCorners}", (state.mexCorners / 12f).coerceAtMost(1f), ColorAiPurple)
+                        }
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        StatRing("POSSESSION", "${state.mexPossessionPct}%", state.mexPossessionPct / 100f, ColorSafe)
-                        StatRing("ATTEMPTS", "${state.mexShots}", (state.mexShots / 15f).coerceAtMost(1f), ColorAiBlue)
-                        StatRing("CORNERS", "${state.mexCorners}", (state.mexCorners / 12f).coerceAtMost(1f), ColorAiPurple)
-                    }
-                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
         // Operations Snapshot
@@ -151,16 +167,23 @@ fun MatchOverviewScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(800, delayMillis = 400)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
-                    val hasIncident = state.activeIncidentsCount > 0
-                    Text("OPERATIONS SNAPSHOT", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                    Text(if (hasIncident) "Active Gate Incident Detected" else "All Systems Operational", color = if (hasIncident) ColorCritical else TextSecondary, fontSize = 12.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    SnapshotItem("Security", if (hasIncident) "Alert" else "Normal", if (hasIncident) ColorCritical else ColorSafe)
-                    SnapshotItem("Gate Flow", if (hasIncident) "Congested" else "Good", if (hasIncident) ColorCritical else ColorSafe)
-                    SnapshotItem("Transportation", "Good", ColorSafe)
-                    SnapshotItem("Medical", "Normal", ColorSafe)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .liquidGlass()
+                        .padding(20.dp)
+                ) {
+                    Column {
+                        val hasIncident = state.activeIncidentsCount > 0
+                        Text("OPERATIONS SNAPSHOT", color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                        Text(if (hasIncident) "Active Gate Incident Detected" else "All Systems Operational", color = if (hasIncident) ColorCritical else TextSecondary, fontSize = 12.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        SnapshotItem("Security", if (hasIncident) "Alert" else "Normal", if (hasIncident) ColorCritical else ColorSafe)
+                        SnapshotItem("Gate Flow", if (hasIncident) "Congested" else "Good", if (hasIncident) ColorCritical else ColorSafe)
+                        SnapshotItem("Transportation", "Good", ColorSafe)
+                        SnapshotItem("Medical", "Normal", ColorSafe)
+                    }
                 }
             }
         }

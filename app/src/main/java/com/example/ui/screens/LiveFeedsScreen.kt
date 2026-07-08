@@ -80,11 +80,10 @@ fun LiveFeedsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 
 @Composable
 fun FeedCard(title: String, status: String, statusColor: Color, imageResId: Int) {
-    Surface(
-        color = Color(0xFF1E293B).copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
-        shape = RoundedCornerShape(24.dp),
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .liquidGlass(shape = RoundedCornerShape(24.dp))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
