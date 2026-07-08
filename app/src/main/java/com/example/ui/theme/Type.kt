@@ -18,85 +18,85 @@ val Typography = Typography(
     headlineLarge = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 36.sp,
-        lineHeight = 43.sp,
+        fontSize = 54.sp,
+        lineHeight = 65.sp,
         letterSpacing = 0.sp
     ),
     headlineMedium = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 29.sp,
-        lineHeight = 36.sp,
+        fontSize = 44.sp,
+        lineHeight = 54.sp,
         letterSpacing = 0.sp
     ),
     headlineSmall = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 31.sp,
+        fontSize = 36.sp,
+        lineHeight = 47.sp,
         letterSpacing = 0.sp
     ),
     titleLarge = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        lineHeight = 31.sp,
+        fontSize = 36.sp,
+        lineHeight = 47.sp,
         letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
+        fontSize = 27.sp,
+        lineHeight = 39.sp,
         letterSpacing = 0.1.sp
     ),
     titleSmall = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 16.sp,
-        lineHeight = 22.sp,
+        fontSize = 24.sp,
+        lineHeight = 33.sp,
         letterSpacing = 0.1.sp
     ),
     bodyLarge = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 17.sp,
-        lineHeight = 24.sp,
+        fontSize = 26.sp,
+        lineHeight = 36.sp,
         letterSpacing = 0.25.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 22.sp,
+        fontSize = 21.sp,
+        lineHeight = 33.sp,
         letterSpacing = 0.2.sp
     ),
     bodySmall = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 18.sp,
+        fontSize = 18.sp,
+        lineHeight = 27.sp,
         letterSpacing = 0.1.sp
     ),
     labelLarge = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 14.sp,
-        lineHeight = 19.sp,
+        fontSize = 21.sp,
+        lineHeight = 29.sp,
         letterSpacing = 0.4.sp
     ),
     labelMedium = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 13.sp,
-        lineHeight = 18.sp,
+        fontSize = 20.sp,
+        lineHeight = 27.sp,
         letterSpacing = 0.4.sp
     ),
     labelSmall = TextStyle(
         fontFamily = SilkscreenFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
+        fontSize = 17.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.4.sp
     )
 )
