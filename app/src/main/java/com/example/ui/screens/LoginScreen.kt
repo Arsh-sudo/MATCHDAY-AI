@@ -37,6 +37,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,43 +76,12 @@ fun LoginScreen(viewModel: MainViewModel) {
         isVisible = true
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "stadium_lights")
-    val alphaLight by infiniteTransition.animateFloat(
-        initialValue = 0.1f,
-        targetValue = 0.5f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "alpha_lights"
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BgMain)
     ) {
-        // Stadium light beams background
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val width = size.width
-            val height = size.height
-            
-            // Draw radial beam paths representing Estadio Azteca arc lights
-            val beamLeft = Path().apply {
-                moveTo(0f, 0f)
-                lineTo(width * 0.4f, height)
-                lineTo(width * 0.2f, height)
-                close()
-            }
-            val beamRight = Path().apply {
-                moveTo(width, 0f)
-                lineTo(width * 0.8f, height)
-                lineTo(width * 0.6f, height)
-                close()
-            }
-            
-            drawPath(beamLeft, Brush.linearGradient(listOf(ColorAiBlue.copy(alpha = alphaLight), Color.Transparent)))
-            drawPath(beamRight, Brush.linearGradient(listOf(ColorAiPurple.copy(alpha = alphaLight), Color.Transparent)))
-        }
+        // Flat 2D football ground (pitch) with white lines, goal posts, corner flags and a phone-tilt moving 2D ball
+        FootballPitchBackground()
 
         AnimatedVisibility(
             visible = isVisible,
@@ -150,7 +132,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                 letterSpacing = 2.sp
             )
             Text(
-                text = "MATCHDAY AI PORTAL",
+                text = "MATCHDAY AI",
                 color = TextPrimary,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
@@ -497,4 +479,408 @@ fun LoginScreen(viewModel: MainViewModel) {
         }
     }
 }
+}
+
+@Composable
+fun FootballPitchBackground() {
+    val context = LocalContext.current
+    // Use a FloatArray to capture accelerometer values directly without triggering recompositions on every sensor change
+    val sensorValues = remember { FloatArray(2) }
+
+    DisposableEffect(context) {
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent?) {
+                if (event != null) {
+                    // On portrait screen, x-tilt moves ball horizontally, y-tilt moves ball vertically
+                    // Invert x sensor so tilting right slides right (negative reading, so negated makes it positive)
+                    sensorValues[0] = -event.values[0] * 0.25f
+                    sensorValues[1] = event.values[1] * 0.25f
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        if (sensor != null) {
+            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)
+        }
+        onDispose {
+            sensorManager.unregisterListener(listener)
+        }
+    }
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val widthPx = with(density) { maxWidth.toPx() }
+        val heightPx = with(density) { maxHeight.toPx() }
+
+        var ballX by remember { mutableStateOf(0f) }
+        var ballY by remember { mutableStateOf(0f) }
+        var vx by remember { mutableStateOf(0f) }
+        var vy by remember { mutableStateOf(0f) }
+        val ballRadius = 14.dp
+        val ballRadiusPx = with(density) { ballRadius.toPx() }
+
+        var initialized by remember { mutableStateOf(false) }
+        if (!initialized && widthPx > 0f && heightPx > 0f) {
+            ballX = widthPx / 2f
+            ballY = heightPx / 2f
+            initialized = true
+        }
+
+        // Physics Update loop using withFrameNanos
+        var lastTimeNanos by remember { mutableStateOf(0L) }
+        LaunchedEffect(initialized) {
+            if (!initialized) return@LaunchedEffect
+            lastTimeNanos = System.nanoTime()
+            while (true) {
+                withFrameNanos { frameTimeNanos ->
+                    if (lastTimeNanos == 0L) {
+                        lastTimeNanos = frameTimeNanos
+                        return@withFrameNanos
+                    }
+                    val dt = ((frameTimeNanos - lastTimeNanos) / 1_000_000_000f).coerceIn(0.005f, 0.033f)
+                    lastTimeNanos = frameTimeNanos
+
+                    val bounceElasticity = 0.5f
+                    val friction = 0.97f
+
+                    // Retrieve current sensor values dynamically inside the physics loop
+                    val ax = sensorValues[0]
+                    val ay = sensorValues[1]
+                    val targetAx = if (abs(ax) < 0.05f && abs(ay) < 0.05f) 0f else ax
+                    val targetAy = if (abs(ax) < 0.05f && abs(ay) < 0.05f) 0f else ay
+
+                    // Accelerate ball with tilting
+                    vx = (vx + targetAx * dt * 3500f) * friction
+                    vy = (vy + targetAy * dt * 3500f) * friction
+
+                    ballX += vx * dt
+                    ballY += vy * dt
+
+                    // Boundary collision with elastic bounce
+                    if (widthPx > 0f && heightPx > 0f) {
+                        if (ballX < ballRadiusPx) {
+                            ballX = ballRadiusPx
+                            vx = -vx * bounceElasticity
+                        } else if (ballX > widthPx - ballRadiusPx) {
+                            ballX = widthPx - ballRadiusPx
+                            vx = -vx * bounceElasticity
+                        }
+
+                        if (ballY < ballRadiusPx) {
+                            ballY = ballRadiusPx
+                            vy = -vy * bounceElasticity
+                        } else if (ballY > heightPx - ballRadiusPx) {
+                            ballY = heightPx - ballRadiusPx
+                            vy = -vy * bounceElasticity
+                        }
+                    }
+                }
+            }
+        }
+
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures { tapOffset ->
+                        val dx = ballX - tapOffset.x
+                        val dy = ballY - tapOffset.y
+                        val distance = sqrt(dx * dx + dy * dy)
+                        if (distance > 0f) {
+                            // Apply a gentle kick force inversely proportional to tap distance
+                            val force = (1200f / (distance / 40f + 1f)).coerceIn(100f, 1600f)
+                            vx += (dx / distance) * force
+                            vy += (dy / distance) * force
+                        }
+                    }
+                }
+        ) {
+            val w = size.width
+            val h = size.height
+
+            // 1. Alternating Grass stripes
+            val stripesCount = 14
+            val stripeHeight = h / stripesCount
+            for (i in 0 until stripesCount) {
+                val color = if (i % 2 == 0) Color(0xFF133F17) else Color(0xFF103613)
+                drawRect(
+                    color = color,
+                    topLeft = Offset(0f, i * stripeHeight),
+                    size = androidx.compose.ui.geometry.Size(w, stripeHeight + 1f)
+                )
+            }
+
+            // White paint lines setup
+            val linePaintColor = Color.White.copy(alpha = 0.45f)
+            val lineStroke = Stroke(width = 2.dp.toPx())
+
+            // 2. Boundary Lines
+            val pad = 18.dp.toPx()
+            val pw = w - 2 * pad
+            val ph = h - 2 * pad
+            drawRect(
+                color = linePaintColor,
+                topLeft = Offset(pad, pad),
+                size = androidx.compose.ui.geometry.Size(pw, ph),
+                style = lineStroke
+            )
+
+            // 3. Midfield line
+            val midY = h / 2f
+            drawLine(
+                color = linePaintColor,
+                start = Offset(pad, midY),
+                end = Offset(w - pad, midY),
+                strokeWidth = 2.dp.toPx()
+            )
+
+            // 4. Center circle and center spot
+            val centerCircleRadius = 45.dp.toPx()
+            drawCircle(
+                color = linePaintColor,
+                radius = centerCircleRadius,
+                center = Offset(w / 2f, midY),
+                style = lineStroke
+            )
+            drawCircle(
+                color = linePaintColor,
+                radius = 3.5f.dp.toPx(),
+                center = Offset(w / 2f, midY)
+            )
+
+            // 5. Penalty Boxes at Top and Bottom
+            val penBoxWidth = pw * 0.60f
+            val penBoxHeight = ph * 0.12f
+            val penBoxLeft = pad + (pw - penBoxWidth) / 2f
+            drawRect(
+                color = linePaintColor,
+                topLeft = Offset(penBoxLeft, pad),
+                size = androidx.compose.ui.geometry.Size(penBoxWidth, penBoxHeight),
+                style = lineStroke
+            )
+            drawRect(
+                color = linePaintColor,
+                topLeft = Offset(penBoxLeft, h - pad - penBoxHeight),
+                size = androidx.compose.ui.geometry.Size(penBoxWidth, penBoxHeight),
+                style = lineStroke
+            )
+
+            // 6. Goal Areas at Top and Bottom
+            val goalAreaWidth = pw * 0.28f
+            val goalAreaHeight = ph * 0.04f
+            val goalAreaLeft = pad + (pw - goalAreaWidth) / 2f
+            drawRect(
+                color = linePaintColor,
+                topLeft = Offset(goalAreaLeft, pad),
+                size = androidx.compose.ui.geometry.Size(goalAreaWidth, goalAreaHeight),
+                style = lineStroke
+            )
+            drawRect(
+                color = linePaintColor,
+                topLeft = Offset(goalAreaLeft, h - pad - goalAreaHeight),
+                size = androidx.compose.ui.geometry.Size(goalAreaWidth, goalAreaHeight),
+                style = lineStroke
+            )
+
+            // 7. Penalty Spots & Arcs
+            val penaltySpotDist = ph * 0.085f
+            drawCircle(
+                color = linePaintColor,
+                radius = 3.dp.toPx(),
+                center = Offset(w / 2f, pad + penaltySpotDist)
+            )
+            drawCircle(
+                color = linePaintColor,
+                radius = 3.dp.toPx(),
+                center = Offset(w / 2f, h - pad - penaltySpotDist)
+            )
+
+            // 8. Corner Arcs
+            val cornerRadius = 10.dp.toPx()
+            // Top-Left
+            drawArc(
+                color = linePaintColor,
+                startAngle = 0f,
+                sweepAngle = 90f,
+                useCenter = false,
+                topLeft = Offset(pad - cornerRadius, pad - cornerRadius),
+                size = androidx.compose.ui.geometry.Size(cornerRadius * 2, cornerRadius * 2),
+                style = lineStroke
+            )
+            // Top-Right
+            drawArc(
+                color = linePaintColor,
+                startAngle = 90f,
+                sweepAngle = 90f,
+                useCenter = false,
+                topLeft = Offset(w - pad - cornerRadius, pad - cornerRadius),
+                size = androidx.compose.ui.geometry.Size(cornerRadius * 2, cornerRadius * 2),
+                style = lineStroke
+            )
+            // Bottom-Left
+            drawArc(
+                color = linePaintColor,
+                startAngle = 270f,
+                sweepAngle = 90f,
+                useCenter = false,
+                topLeft = Offset(pad - cornerRadius, h - pad - cornerRadius),
+                size = androidx.compose.ui.geometry.Size(cornerRadius * 2, cornerRadius * 2),
+                style = lineStroke
+            )
+            // Bottom-Right
+            drawArc(
+                color = linePaintColor,
+                startAngle = 180f,
+                sweepAngle = 90f,
+                useCenter = false,
+                topLeft = Offset(w - pad - cornerRadius, h - pad - cornerRadius),
+                size = androidx.compose.ui.geometry.Size(cornerRadius * 2, cornerRadius * 2),
+                style = lineStroke
+            )
+
+            // 9. 2D Goal Posts centered at the top and bottom edges (projecting slightly outside boundary)
+            val goalWidth = pw * 0.22f
+            val goalDepth = 12.dp.toPx()
+            val goalLeft = pad + (pw - goalWidth) / 2f
+
+            // Top Goal Post Structure and Net
+            val topGoalPath = Path().apply {
+                moveTo(goalLeft, pad)
+                lineTo(goalLeft, pad - goalDepth)
+                lineTo(goalLeft + goalWidth, pad - goalDepth)
+                lineTo(goalLeft + goalWidth, pad)
+            }
+            drawPath(
+                path = topGoalPath,
+                color = Color.White.copy(alpha = 0.8f),
+                style = Stroke(width = 2.5f.dp.toPx())
+            )
+            // Goal nets
+            for (gx in 1..4) {
+                val stepX = goalWidth / 5f
+                drawLine(
+                    color = Color.White.copy(alpha = 0.25f),
+                    start = Offset(goalLeft + gx * stepX, pad),
+                    end = Offset(goalLeft + gx * stepX, pad - goalDepth),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+
+            // Bottom Goal Post Structure and Net
+            val bottomGoalPath = Path().apply {
+                moveTo(goalLeft, h - pad)
+                lineTo(goalLeft, h - pad + goalDepth)
+                lineTo(goalLeft + goalWidth, h - pad + goalDepth)
+                lineTo(goalLeft + goalWidth, h - pad)
+            }
+            drawPath(
+                path = bottomGoalPath,
+                color = Color.White.copy(alpha = 0.8f),
+                style = Stroke(width = 2.5f.dp.toPx())
+            )
+            // Goal nets
+            for (gx in 1..4) {
+                val stepX = goalWidth / 5f
+                drawLine(
+                    color = Color.White.copy(alpha = 0.25f),
+                    start = Offset(goalLeft + gx * stepX, h - pad),
+                    end = Offset(goalLeft + gx * stepX, h - pad + goalDepth),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+
+            // 10. Corner flags with small flagpoles and red flags
+            val flagPoleHeight = 9.dp.toPx()
+            val flagSize = 5.dp.toPx()
+            val cornerCoords = listOf(
+                Offset(pad, pad),
+                Offset(w - pad, pad),
+                Offset(pad, h - pad),
+                Offset(w - pad, h - pad)
+            )
+            cornerCoords.forEach { coord ->
+                // Flagpole
+                drawLine(
+                    color = Color(0xFFE29578),
+                    start = coord,
+                    end = Offset(coord.x, coord.y - flagPoleHeight),
+                    strokeWidth = 1.5.dp.toPx()
+                )
+                // Tiny Red flag triangle
+                val flagPath = Path().apply {
+                    moveTo(coord.x, coord.y - flagPoleHeight)
+                    lineTo(coord.x + flagSize, coord.y - flagPoleHeight + flagSize / 2f)
+                    lineTo(coord.x, coord.y - flagPoleHeight + flagSize)
+                    close()
+                }
+                drawPath(
+                    path = flagPath,
+                    color = Color(0xFFEF4444)
+                )
+            }
+
+            // 11. Render the 2D Football at Offset(ballX, ballY)
+            if (initialized) {
+                // Ball Shadow
+                drawCircle(
+                    color = Color.Black.copy(alpha = 0.35f),
+                    radius = ballRadiusPx + 1.5f.dp.toPx(),
+                    center = Offset(ballX, ballY + 2f.dp.toPx())
+                )
+
+                // White Base
+                drawCircle(
+                    color = Color.White,
+                    radius = ballRadiusPx,
+                    center = Offset(ballX, ballY)
+                )
+
+                // Central Hexagon
+                drawCircle(
+                    color = Color(0xFF1E293B),
+                    radius = ballRadiusPx * 0.32f,
+                    center = Offset(ballX, ballY)
+                )
+
+                // Radial lines and surrounding panels
+                val outerPanelRadius = ballRadiusPx * 0.72f
+                for (angleDeg in listOf(30, 102, 174, 246, 318)) {
+                    val angleRad = Math.toRadians(angleDeg.toDouble())
+                    val outerPoint = Offset(
+                        (ballX + cos(angleRad) * ballRadiusPx).toFloat(),
+                        (ballY + sin(angleRad) * ballRadiusPx).toFloat()
+                    )
+                    val innerPoint = Offset(
+                        (ballX + cos(angleRad) * ballRadiusPx * 0.32f).toFloat(),
+                        (ballY + sin(angleRad) * ballRadiusPx * 0.32f).toFloat()
+                    )
+                    drawLine(
+                        color = Color(0xFF1E293B),
+                        start = innerPoint,
+                        end = outerPoint,
+                        strokeWidth = 1.5f.dp.toPx()
+                    )
+                    // Mini panel dots on outer edge
+                    drawCircle(
+                        color = Color(0xFF1E293B),
+                        radius = ballRadiusPx * 0.14f,
+                        center = Offset(
+                            (ballX + cos(angleRad) * outerPanelRadius).toFloat(),
+                            (ballY + sin(angleRad) * outerPanelRadius).toFloat()
+                        )
+                    )
+                }
+
+                // Outer boundary stroke for ball definition
+                drawCircle(
+                    color = Color(0xFF1E293B),
+                    radius = ballRadiusPx,
+                    center = Offset(ballX, ballY),
+                    style = Stroke(width = 1.2f.dp.toPx())
+                )
+            }
+        }
+    }
 }
