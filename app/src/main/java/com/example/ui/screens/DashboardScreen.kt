@@ -115,7 +115,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
 
         // Sustainability Card
         item {
-            SustainabilityCard()
+            SustainabilityCard(state = state)
         }
 
         if (loggedInUserType == "fan") {
@@ -131,7 +131,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         colors = ButtonDefaults.buttonColors(containerColor = ColorAiBlue),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(androidx.compose.material.icons.Icons.Default.Accessible, contentDescription = "Accessible Route")
+                        Icon(Icons.Default.Accessible, contentDescription = "Accessible Route")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Accessible Route to Seat")
                     }
@@ -261,14 +261,14 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         
                         // Possession bar
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("MEX 54%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("MEX ${state.mexPossessionPct}%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             Text("Ball Possession", color = TextSecondary, fontSize = 12.sp)
-                            Text("BRA 46%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("BRA ${100 - state.mexPossessionPct}%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFF0F172A))) {
-                            Box(modifier = Modifier.weight(0.54f).fillMaxHeight().background(Color(0xFF006633)))
-                            Box(modifier = Modifier.weight(0.46f).fillMaxHeight().background(Color(0xFFFFCC00)))
+                            Box(modifier = Modifier.weight(state.mexPossessionPct / 100f).fillMaxHeight().background(Color(0xFF006633)))
+                            Box(modifier = Modifier.weight((100 - state.mexPossessionPct) / 100f).fillMaxHeight().background(Color(0xFFFFCC00)))
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -276,15 +276,15 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigateToFeeds: () -> Unit) {
                         // Other stats
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("5", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("${state.mexShots}", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 Text("Shots on Target", color = TextSecondary, fontSize = 10.sp)
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("6", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("${state.mexCorners}", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 Text("Corner Kicks", color = TextSecondary, fontSize = 10.sp)
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("12", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("${state.mexFouls}", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 Text("Fouls committed", color = TextSecondary, fontSize = 10.sp)
                             }
                         }
@@ -804,7 +804,7 @@ fun TelemetryStatItem(
 }
 
 @Composable
-fun SustainabilityCard() {
+fun SustainabilityCard(state: com.example.viewmodel.DashboardState) {
     Surface(
         color = Color(0xFF1E293B).copy(alpha = 0.85f),
         border = androidx.compose.foundation.BorderStroke(1.dp, GlassBorder),
@@ -843,7 +843,7 @@ fun SustainabilityCard() {
             ) {
                 TelemetryStatItem(
                     title = "RENEWABLE ENERGY",
-                    value = "82%",
+                    value = "${state.renewableEnergyPct}%",
                     subValue = "SOLAR ACTIVE",
                     icon = Icons.Default.EnergySavingsLeaf,
                     iconColor = ColorSafe,
@@ -852,7 +852,7 @@ fun SustainabilityCard() {
 
                 TelemetryStatItem(
                     title = "WASTE DIVERSION",
-                    value = "64%",
+                    value = "${state.wasteDiversionPct}%",
                     subValue = "COMPOST & RECYCLE",
                     icon = Icons.Default.Recycling,
                     iconColor = ColorAiBlue,
@@ -861,7 +861,7 @@ fun SustainabilityCard() {
 
                 TelemetryStatItem(
                     title = "CARBON OFFSET",
-                    value = "1.2t",
+                    value = String.format("%.1ft", state.carbonOffsetTonnes),
                     subValue = "TRANSIT SAVINGS",
                     icon = Icons.Default.Co2,
                     iconColor = ColorAiPurple,

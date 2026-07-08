@@ -39,11 +39,8 @@ import com.example.viewmodel.MainViewModel
 import com.example.viewmodel.ChatMessage
 import com.example.ui.theme.*
 
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
@@ -59,8 +56,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val listState = rememberLazyListState()
     var showClearDialog by remember { mutableStateOf(false) }
     
-    val recordAudioPermissionState = rememberPermissionState(android.Manifest.permission.RECORD_AUDIO)
-    
+    val context = androidx.compose.ui.platform.LocalContext.current
     val speechRecognizerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { result ->
@@ -69,6 +65,20 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 if (!spokenText.isNullOrEmpty()) {
                     inputText = spokenText
                 }
+            }
+        }
+    )
+
+    val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to MATCHDAY AI...")
+                }
+                try { speechRecognizerLauncher.launch(intent) } catch (e: Exception) { }
             }
         }
     )
@@ -341,7 +351,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             
             IconButton(
                 onClick = {
-                    if (recordAudioPermissionState.status.isGranted) {
+                    if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                             putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault())
@@ -353,7 +363,7 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             // Safe fallback if recognizer activity is unavailable
                         }
                     } else {
-                        recordAudioPermissionState.launchPermissionRequest()
+                        recordAudioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     }
                 },
                 modifier = Modifier.testTag("mic_button")

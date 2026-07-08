@@ -152,8 +152,14 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                             GlowingIndicator()
                                         }
                                         Spacer(modifier = Modifier.height(2.dp))
-                                        val currentTime = remember { 
-                                            java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date()) 
+                                        var currentTime by remember { mutableStateOf(
+                                            java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
+                                        ) }
+                                        LaunchedEffect(Unit) {
+                                            while (true) {
+                                                kotlinx.coroutines.delay(60_000L)
+                                                currentTime = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
+                                            }
                                         }
                                         Text(currentTime, color = TextSecondary, fontSize = 12.sp)
                                     }

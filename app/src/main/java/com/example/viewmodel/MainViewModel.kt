@@ -56,6 +56,13 @@ data class DashboardState(
     val mexScore: Int = 2,
     val braScore: Int = 1,
     val activeIncidentsCount: Int = 1,
+    val renewableEnergyPct: Int = 82,
+    val wasteDiversionPct: Int = 64,
+    val carbonOffsetTonnes: Float = 1.2f,
+    val mexPossessionPct: Int = 54,
+    val mexShots: Int = 5,
+    val mexCorners: Int = 3,
+    val mexFouls: Int = 12,
     val gates: Map<String, GateState> = emptyMap()
 )
 
@@ -344,6 +351,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val nextTransit = (1..10).random()
                 val nextAiScore = if (current.activeIncidentsCount > 0) (94..98).random() else (97..100).random()
                 
+                var nextRenewable = current.renewableEnergyPct + (-1..1).random()
+                nextRenewable = nextRenewable.coerceIn(75, 95)
+                
+                var nextWaste = current.wasteDiversionPct + (-1..1).random()
+                nextWaste = nextWaste.coerceIn(60, 75)
+                
+                val delta = if ((0..2).random() == 0) -0.1f else 0.1f
+                var nextCarbon = (current.carbonOffsetTonnes + delta).coerceIn(1.0f, 3.5f)
+                
+                var nextMexPossession = current.mexPossessionPct + (-2..2).random()
+                nextMexPossession = nextMexPossession.coerceIn(40, 65)
+
+                var nextMexShots = current.mexShots
+                if ((1..20).random() == 1) nextMexShots += 1
+
+                var nextMexCorners = current.mexCorners
+                if ((1..15).random() == 1) nextMexCorners += 1
+                
+                var nextMexFouls = current.mexFouls
+                if ((1..10).random() == 1) nextMexFouls += 1
+                
                 _dashboardState.value = DashboardState(
                     gate7Density = nextGate7Density,
                     volunteersActive = nextVolunteers,
@@ -359,6 +387,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     mexScore = nextMex,
                     braScore = nextBra,
                     activeIncidentsCount = current.activeIncidentsCount,
+                    renewableEnergyPct = nextRenewable,
+                    wasteDiversionPct = nextWaste,
+                    carbonOffsetTonnes = nextCarbon,
+                    mexPossessionPct = nextMexPossession,
+                    mexShots = nextMexShots,
+                    mexCorners = nextMexCorners,
+                    mexFouls = nextMexFouls,
                     gates = generateDefaultGates(nextSurge, nextGate7Density, nextVolunteers, current.activeIncidentsCount)
                 )
             }
