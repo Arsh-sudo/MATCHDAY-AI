@@ -148,15 +148,10 @@ fun LiveDemoScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "GEMINI OPERATIONS ASSISTANT",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "AI Copilot",
+                        style = MaterialTheme.typography.titleLarge,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "AI Copilot",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = TextSecondary
                     )
                 }
                 var showMenu by remember { mutableStateOf(false) }
