@@ -18,6 +18,9 @@ import androidx.compose.material.icons.filled.EventSeat
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -235,11 +238,20 @@ fun LoginScreen(viewModel: MainViewModel) {
                     if (targetTab == 0) {
                     // FAN PORTAL VIEW
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .liquidGlass(shape = RoundedCornerShape(24.dp))
+                            .padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Your AI powered companion for a smarter, smoother match experience..",
+                            text = "Welcome! 👋",
+                            color = Color.White,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Enter your details to access your personalized Matchday AI experience.",
                             color = TextSecondary,
                             fontSize = 15.6.sp,
                             lineHeight = 23.4.sp
@@ -248,18 +260,19 @@ fun LoginScreen(viewModel: MainViewModel) {
                         OutlinedTextField(
                             value = fanName,
                             onValueChange = { fanName = it; fanError = "" },
-                            label = { Text("Full Name") },
+                            label = { Text("Full Name", color = Color.White, fontWeight = FontWeight.SemiBold) },
                             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = AccentLight) },
                             singleLine = true,
+                            placeholder = { Text("Enter your full name", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Transparent,
                                 unfocusedBorderColor = Color.Transparent,
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedLabelColor = AccentLight,
-                                unfocusedLabelColor = TextSecondary,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
+                                focusedLabelColor = Color.White,
+                                unfocusedLabelColor = Color.White,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier
@@ -271,19 +284,19 @@ fun LoginScreen(viewModel: MainViewModel) {
                         OutlinedTextField(
                             value = fanTicketId,
                             onValueChange = { fanTicketId = it; fanError = "" },
-                            label = { Text("Ticket Ref (e.g. WC-CDMX-402)") },
+                            label = { Text("Ticket Reference Number", color = Color.White, fontWeight = FontWeight.SemiBold) },
                             leadingIcon = { Icon(Icons.Default.ConfirmationNumber, contentDescription = null, tint = AccentLight) },
                             singleLine = true,
-                            placeholder = { Text("WC-CDMX-402", color = TextSecondary.copy(alpha = 0.5f)) },
+                            placeholder = { Text("Enter ticket ref (e.g. WC-CDMX-402)", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Transparent,
                                 unfocusedBorderColor = Color.Transparent,
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedLabelColor = AccentLight,
-                                unfocusedLabelColor = TextSecondary,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
+                                focusedLabelColor = Color.White,
+                                unfocusedLabelColor = Color.White,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier
@@ -295,19 +308,19 @@ fun LoginScreen(viewModel: MainViewModel) {
                         OutlinedTextField(
                             value = fanSeat,
                             onValueChange = { fanSeat = it; fanError = "" },
-                            label = { Text("Seat block (e.g. 104-B)") },
+                            label = { Text("Seat Block Number", color = Color.White, fontWeight = FontWeight.SemiBold) },
                             leadingIcon = { Icon(Icons.Default.EventSeat, contentDescription = null, tint = AccentLight) },
                             singleLine = true,
-                            placeholder = { Text("104-B", color = TextSecondary.copy(alpha = 0.5f)) },
+                            placeholder = { Text("Enter seat block (e.g. 104-B)", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Transparent,
                                 unfocusedBorderColor = Color.Transparent,
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
-                                focusedLabelColor = AccentLight,
-                                unfocusedLabelColor = TextSecondary,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
+                                focusedLabelColor = Color.White,
+                                unfocusedLabelColor = Color.White,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier
@@ -337,17 +350,17 @@ fun LoginScreen(viewModel: MainViewModel) {
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
+                                .height(64.dp)
                                 .testTag("fan_login_button"),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                             contentPadding = PaddingValues(),
-                            shape = RoundedCornerShape(28.dp)
+                            shape = RoundedCornerShape(24.dp)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .liquidGlass(
-                                        shape = RoundedCornerShape(28.dp),
+                                        shape = RoundedCornerShape(24.dp),
                                         topBorderColor = AccentLight.copy(alpha = 0.5f),
                                         bottomBorderColor = AccentDark.copy(alpha = 0.2f),
                                         bgStartColor = AccentLight.copy(alpha = 0.4f),
@@ -355,22 +368,57 @@ fun LoginScreen(viewModel: MainViewModel) {
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("ENTER FAN EXPERIENCE", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+                                    Text("ACCESS MATCHDAY AI", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                    }
                                 }
                             }
+                        }
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(Icons.Default.Security, contentDescription = null, tint = AccentLight, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "Your information is secure and used only\nto personalize your stadium experience.",
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
                         }
                     }
                 } else {
                     // OPERATIONS PORTAL VIEW
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .liquidGlass(shape = RoundedCornerShape(24.dp))
+                            .padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Access unified operational metrics, real-time gate surges, live HD CCTV feeds, and GenAI-powered dispatch intelligence.",
+                            text = "Welcome! 👋",
+                            color = Color.White,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Enter your details to access your personalized Matchday AI experience.",
                             color = TextSecondary,
                             fontSize = 15.6.sp,
                             lineHeight = 23.4.sp
@@ -379,40 +427,51 @@ fun LoginScreen(viewModel: MainViewModel) {
                         OutlinedTextField(
                             value = staffId,
                             onValueChange = { staffId = it; staffError = "" },
-                            label = { Text("Operations ID") },
+                            label = { Text("Operations ID", color = Color.White, fontWeight = FontWeight.SemiBold) },
                             leadingIcon = { Icon(Icons.Default.Badge, contentDescription = null, tint = ColorAiPurple) },
                             singleLine = true,
-                            placeholder = { Text("STAFF-2026", color = TextSecondary.copy(alpha = 0.5f)) },
+                            placeholder = { Text("Enter ID (e.g. STAFF-2026)", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ColorAiPurple,
-                                unfocusedBorderColor = GlassBorder,
-                                focusedLabelColor = ColorAiPurple,
-                                unfocusedLabelColor = TextSecondary,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedLabelColor = Color.White,
+                                unfocusedLabelColor = Color.White,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth().testTag("staff_id_input")
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .liquidGlass(shape = RoundedCornerShape(16.dp))
+                                .testTag("staff_id_input")
                         )
 
                         OutlinedTextField(
                             value = staffPin,
                             onValueChange = { staffPin = it; staffError = "" },
-                            label = { Text("Security Pin") },
+                            label = { Text("Security Pin", color = Color.White, fontWeight = FontWeight.SemiBold) },
                             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ColorAiPurple) },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            placeholder = { Text("Enter security pin", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ColorAiPurple,
-                                unfocusedBorderColor = GlassBorder,
-                                focusedLabelColor = ColorAiPurple,
-                                unfocusedLabelColor = TextSecondary,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedLabelColor = Color.White,
+                                unfocusedLabelColor = Color.White,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth().testTag("staff_pin_input")
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .liquidGlass(shape = RoundedCornerShape(16.dp))
+                                .testTag("staff_pin_input")
                         )
 
                         // Role Selector
@@ -430,8 +489,8 @@ fun LoginScreen(viewModel: MainViewModel) {
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
-                                        Text("ASSIGNED OPERATIONAL ROLE", fontSize = 10.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
-                                        Text(selectedRole, fontSize = 14.sp, color = TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 2.dp))
+                                        Text("ASSIGNED OPERATIONAL ROLE", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                                        Text(selectedRole, fontSize = 14.sp, color = TextSecondary, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 2.dp))
                                     }
                                     Text("▾", color = TextSecondary, fontSize = 16.sp)
                                 }
@@ -472,17 +531,17 @@ fun LoginScreen(viewModel: MainViewModel) {
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
+                                .height(64.dp)
                                 .testTag("staff_login_button"),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                             contentPadding = PaddingValues(),
-                            shape = RoundedCornerShape(28.dp)
+                            shape = RoundedCornerShape(24.dp)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .liquidGlass(
-                                        shape = RoundedCornerShape(28.dp),
+                                        shape = RoundedCornerShape(24.dp),
                                         topBorderColor = ColorAiPurple.copy(alpha = 0.5f),
                                         bottomBorderColor = ColorAiBlue.copy(alpha = 0.2f),
                                         bgStartColor = ColorAiPurple.copy(alpha = 0.4f),
@@ -490,12 +549,38 @@ fun LoginScreen(viewModel: MainViewModel) {
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("AUTHORIZE OPERATIONS ACCESS", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+                                    Text("AUTHORIZE ACCESS", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                    }
                                 }
                             }
+                        }
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(Icons.Default.Security, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "Your information is secure and used only\nto personalize your stadium experience.",
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
                         }
                     }
                 }
