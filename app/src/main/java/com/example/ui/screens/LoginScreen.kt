@@ -121,10 +121,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                         .background(BgMain, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Filled.SportsSoccer, 
-                        contentDescription = "Soccer logo", 
-                        tint = Color.White, 
+                    CustomLogo(
                         modifier = Modifier.size(44.dp)
                     )
                 }
@@ -142,16 +139,10 @@ fun LoginScreen(viewModel: MainViewModel) {
             )
             Text(
                 text = "MATCHDAY AI",
-                color = TextPrimary,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 0.5.sp
-            )
-            Text(
-                text = "Estadio Azteca • CDMX",
-                color = TextSecondary,
-                fontSize = 13.sp,
-                modifier = Modifier.padding(top = 4.dp)
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -248,7 +239,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Check in with your ticket reference to access live assistant, personalized wayfinding, and seat-specific services.",
+                            text = "Your AI powered companion for a smarter, smoother match experience..",
                             color = TextSecondary,
                             fontSize = 15.6.sp,
                             lineHeight = 23.4.sp
@@ -1084,4 +1075,60 @@ class GoalAnimationState {
     var scale by mutableStateOf(0f)
     var alpha by mutableStateOf(0f)
     var timer by mutableStateOf(0f)
+}
+
+@Composable
+fun CustomLogo(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val radius = size.minDimension / 2
+        val center = Offset(size.width / 2, size.height / 2)
+        
+        drawCircle(
+            color = Color.White,
+            radius = radius * 0.9f,
+            center = center,
+            style = Stroke(width = (radius * 0.1f))
+        )
+        
+        val pentagonRadius = radius * 0.35f
+        val pentagonPath = Path()
+        val angles = listOf(
+            -Math.PI / 2,
+            -Math.PI / 2 + 2 * Math.PI / 5,
+            -Math.PI / 2 + 4 * Math.PI / 5,
+            -Math.PI / 2 + 6 * Math.PI / 5,
+            -Math.PI / 2 + 8 * Math.PI / 5,
+        )
+        
+        angles.forEachIndexed { index, angle ->
+            val x = center.x + (pentagonRadius * kotlin.math.cos(angle)).toFloat()
+            val y = center.y + (pentagonRadius * kotlin.math.sin(angle)).toFloat()
+            if (index == 0) {
+                pentagonPath.moveTo(x, y)
+            } else {
+                pentagonPath.lineTo(x, y)
+            }
+        }
+        pentagonPath.close()
+        
+        drawPath(
+            path = pentagonPath,
+            color = Color.White
+        )
+        
+        val outerRadius = radius * 0.9f
+        angles.forEach { angle ->
+            val innerX = center.x + (pentagonRadius * kotlin.math.cos(angle)).toFloat()
+            val innerY = center.y + (pentagonRadius * kotlin.math.sin(angle)).toFloat()
+            val outerX = center.x + (outerRadius * kotlin.math.cos(angle)).toFloat()
+            val outerY = center.y + (outerRadius * kotlin.math.sin(angle)).toFloat()
+            
+            drawLine(
+                color = Color.White,
+                start = Offset(innerX, innerY),
+                end = Offset(outerX, outerY),
+                strokeWidth = (radius * 0.1f)
+            )
+        }
+    }
 }
