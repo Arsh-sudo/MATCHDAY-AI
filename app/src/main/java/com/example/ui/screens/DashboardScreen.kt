@@ -65,8 +65,6 @@ fun DashboardScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        DashboardPitchBackground()
-        
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),

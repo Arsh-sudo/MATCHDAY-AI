@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.screens.*
+import com.example.ui.screens.DashboardPitchBackground
 import com.example.viewmodel.MainViewModel
 import com.example.ui.theme.*
 
@@ -81,16 +82,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
 
         
         Box(modifier = Modifier.fillMaxSize().background(BgMain)) {
-            // Subtle background grid
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val step = 40.dp.toPx()
-                for (x in 0..size.width.toInt() step step.toInt()) {
-                    drawLine(Color.White.copy(alpha = 0.02f), Offset(x.toFloat(), 0f), Offset(x.toFloat(), size.height))
-                }
-                for (y in 0..size.height.toInt() step step.toInt()) {
-                    drawLine(Color.White.copy(alpha = 0.02f), Offset(0f, y.toFloat()), Offset(size.width, y.toFloat()))
-                }
-            }
+            DashboardPitchBackground()
 
             Scaffold(
                 modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing),
