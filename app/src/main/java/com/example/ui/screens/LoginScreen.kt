@@ -1179,7 +1179,7 @@ fun CustomLogo(modifier: Modifier = Modifier) {
         val center = Offset(size.width / 2, size.height / 2)
         
         drawCircle(
-            color = com.example.ui.theme.AccentLight,
+            color = com.example.ui.theme.ColorSafe, // Green
             radius = radius * 0.9f,
             center = center,
             style = Stroke(width = (radius * 0.1f))
@@ -1208,7 +1208,7 @@ fun CustomLogo(modifier: Modifier = Modifier) {
         
         drawPath(
             path = pentagonPath,
-            color = com.example.ui.theme.AccentGold
+            color = Color.White
         )
         
         val outerRadius = radius * 0.9f
