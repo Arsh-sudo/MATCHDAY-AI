@@ -649,7 +649,7 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
             .liquidGlass(shape = RoundedCornerShape(16.dp))
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -658,7 +658,8 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
                 color = TextSecondary,
                 fontSize = 10.sp,
                 letterSpacing = 0.5.sp,
-                maxLines = 1
+                maxLines = 1,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             
             if (isCircular) {
@@ -681,7 +682,7 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
                     if (icon != null) {
                         Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
                     }
-                    Text(value, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(value, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
             
@@ -690,7 +691,8 @@ fun StatCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVecto
                 color = subValueColor,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                maxLines = 1
+                maxLines = 1,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
     }
@@ -864,10 +866,14 @@ fun TelemetryStatItem(
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(12.dp),
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (icon != null) {
                     Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(6.dp))
@@ -877,17 +883,23 @@ fun TelemetryStatItem(
                     color = TextPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 1
+                    maxLines = 1,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
             
-            Row(verticalAlignment = Alignment.Bottom) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
                 Text(
                     text = value,
                     color = TextPrimary,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 1
+                    maxLines = 1,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
                 if (unit.isNotEmpty()) {
                     Spacer(modifier = Modifier.width(2.dp))
@@ -896,7 +908,8 @@ fun TelemetryStatItem(
                         color = TextSecondary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 3.dp)
+                        modifier = Modifier.padding(bottom = 3.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                 }
             }
@@ -906,7 +919,9 @@ fun TelemetryStatItem(
                 color = if (value != "Offline") iconColor else TextSecondary,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium,
-                maxLines = 1
+                maxLines = 1,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

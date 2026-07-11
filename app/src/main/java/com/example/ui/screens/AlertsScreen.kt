@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -123,11 +124,12 @@ fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds
                 modifier = Modifier.fillMaxWidth()
             ) {
                 AlertCard(
+                    emoji = "🚇",
                     title = "Metro Delay",
                     subtitle = "Line 3 - South Station",
                     severityColor = ColorAttention,
                     severityColorDark = ColorAttentionDark,
-                    description = "Delay: 8 mins\nImpact: Moderate",
+                    details = "Delay: 8 mins   •   Impact: Moderate",
                     actionText = "Update digital signage",
                     onNavigateToFeeds = onNavigateToFeeds
                 )
@@ -141,11 +143,12 @@ fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds
                 modifier = Modifier.fillMaxWidth()
             ) {
                 AlertCard(
+                    emoji = "🌧️",
                     title = "Weather Update",
                     subtitle = "Light Rain Expected",
                     severityColor = ColorSafe,
                     severityColorDark = ColorSafeDark,
-                    description = "Duration: Next 2 hours",
+                    details = "Duration: Next 2 hours",
                     actionText = "Close roof",
                     onNavigateToFeeds = onNavigateToFeeds
                 )
@@ -155,43 +158,77 @@ fun AlertsScreen(viewModel: MainViewModel, onBack: () -> Unit, onNavigateToFeeds
 }
 
 @Composable
-fun AlertCard(title: String, subtitle: String, severityColor: Color, severityColorDark: Color, description: String, actionText: String, onNavigateToFeeds: () -> Unit) {
+fun AlertCard(
+    emoji: String,
+    title: String, 
+    subtitle: String, 
+    severityColor: Color, 
+    severityColorDark: Color, 
+    details: String, 
+    actionText: String, 
+    onNavigateToFeeds: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .liquidGlass(
                 shape = RoundedCornerShape(20.dp),
+                bgStartColor = severityColor.copy(alpha = 0.5f),
+                bgEndColor = severityColorDark.copy(alpha = 0.3f),
                 topBorderColor = severityColor.copy(alpha = 0.6f),
                 bottomBorderColor = severityColorDark.copy(alpha = 0.1f)
             )
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Warning, contentDescription = "Alert", tint = severityColor, modifier = Modifier.size(32.dp))
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(title, fontWeight = FontWeight.Bold, color = severityColor, style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(), 
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(emoji, fontSize = 32.sp)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                    }
+                }
+                
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(Color.White.copy(alpha = 0.1f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.ChevronRight, contentDescription = "More", tint = Color.White, modifier = Modifier.size(20.dp))
+                }
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(subtitle, color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(description, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+            
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = GlassBorder)
+            
+            Text(details, color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Suggested Action", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(actionText, color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
+            HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
+            
+            Text("Suggested Action", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(actionText, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            OutlinedButton(
                 onClick = onNavigateToFeeds, 
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .border(1.dp, severityColor, RoundedCornerShape(24.dp)),
+                    .height(48.dp),
                 shape = RoundedCornerShape(24.dp)
             ) {
-                Text("View Live Camera", fontWeight = FontWeight.Bold, color = severityColor)
+                Text("View Live Camera", fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -204,40 +241,69 @@ fun EmergencyAlertCard(mins: Int, onDeploy: () -> Unit, onNavigateToFeeds: () ->
             .fillMaxWidth()
             .liquidGlass(
                 shape = RoundedCornerShape(24.dp),
-                borderWidth = 2.dp,
-                topBorderColor = ColorCritical,
-                bottomBorderColor = ColorCritical.copy(alpha = 0.2f)
+                borderWidth = 1.dp,
+                bgStartColor = ColorCritical.copy(alpha = 0.7f),
+                bgEndColor = ColorCriticalDark.copy(alpha = 0.5f),
+                topBorderColor = ColorCritical.copy(alpha = 0.8f),
+                bottomBorderColor = ColorCriticalDark.copy(alpha = 0.3f)
             )
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Warning, contentDescription = "Alert", tint = ColorCritical, modifier = Modifier.size(48.dp))
-                Spacer(modifier = Modifier.width(16.dp))
-                Text("Crowd Surge Detected", fontWeight = FontWeight.Bold, color = ColorCritical, style = MaterialTheme.typography.titleLarge)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // White rounded box with warning icon
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color.White, RoundedCornerShape(12.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Warning, contentDescription = "Alert", tint = ColorCritical, modifier = Modifier.size(28.dp))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text("Crowd Surge Detected", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Gate 7", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+                    }
+                }
+                
+                // High Priority Tag
+                Box(
+                    modifier = Modifier
+                        .border(1.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Text("HIGH PRIORITY", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                }
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("Gate 7", color = TextPrimary, style = MaterialTheme.typography.titleMedium)
-                Text("Expected in $mins mins", color = TextPrimary, style = MaterialTheme.typography.titleMedium)
-            }
-            Spacer(modifier = Modifier.height(32.dp))
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text("Expected in $mins mins", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Confidence: 95%", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+            
+            Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
                     onClick = onDeploy, 
-                    colors = ButtonDefaults.buttonColors(containerColor = ColorCritical),
-                    modifier = Modifier.weight(1f).height(56.dp)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(24.dp)
                 ) {
-                    Text("Deploy & Execute", fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("Deploy & Execute", fontWeight = FontWeight.Bold, color = ColorCritical)
                 }
                 
                 OutlinedButton(
                     onClick = onNavigateToFeeds,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ColorCritical),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, ColorCritical),
-                    modifier = Modifier.weight(1f).height(56.dp)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.White),
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(24.dp)
                 ) {
                     Text("View CCTV", fontWeight = FontWeight.Bold)
                 }
