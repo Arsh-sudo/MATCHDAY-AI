@@ -764,8 +764,8 @@ fun TelemetryCard(viewModel: MainViewModel) {
             Text(
                 text = "Show real-time readings from your device's built-in sensors instead of stadium simulations.",
                 color = TextSecondary,
-                fontSize = 11.sp,
-                lineHeight = 16.sp
+                fontSize = 14.sp,
+                lineHeight = 20.sp
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -850,12 +850,13 @@ fun TelemetryStatItem(
             .height(108.dp)
             .liquidGlass(
                 shape = RoundedCornerShape(12.dp)
-            )
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
                 text = title,
