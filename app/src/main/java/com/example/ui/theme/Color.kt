@@ -12,6 +12,8 @@ val TextSecondary = Color(0xFFA7F3D0) // Minty light green for secondary text
 
 val AccentLight = Color(0xFF22C55E) // Vibrant turf green
 val AccentDark = Color(0xFF15803D) // Deep pitch green
+val AccentGold = Color(0xFFFBBF24) // Golden yellow accent
+val AccentGoldDark = Color(0xFFD97706) // Darker gold for gradients
 
 // Operational Colors
 val ColorSafe = Color(0xFF4ADE80)      // Fresh light green

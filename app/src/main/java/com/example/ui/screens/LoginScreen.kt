@@ -136,7 +136,7 @@ fun LoginScreen(viewModel: MainViewModel) {
             // Brand Header
             Text(
                 text = "FIFA WORLD CUP 2026™",
-                color = AccentLight,
+                color = com.example.ui.theme.AccentGold,
                 fontSize = 15.6.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.sp
@@ -175,7 +175,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                         label = "fan_bg"
                     )
                     val fanTabTextColor by animateColorAsState(
-                        targetValue = if (activeTab == 0) AccentLight else TextSecondary,
+                        targetValue = if (activeTab == 0) Color.White else TextSecondary,
                         label = "fan_text"
                     )
 
@@ -185,6 +185,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(16.dp))
                             .background(fanTabBg)
+                            .border(if (activeTab == 0) 1.dp else 0.dp, if (activeTab == 0) com.example.ui.theme.AccentGold else Color.Transparent, RoundedCornerShape(16.dp))
                             .clickable { activeTab = 0 }
                             .testTag("tab_fan"),
                         contentAlignment = Alignment.Center
@@ -203,7 +204,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                         label = "ops_bg"
                     )
                     val opsTabTextColor by animateColorAsState(
-                        targetValue = if (activeTab == 1) AccentLight else TextSecondary,
+                        targetValue = if (activeTab == 1) Color.White else TextSecondary,
                         label = "ops_text"
                     )
 
@@ -213,6 +214,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(16.dp))
                             .background(opsTabBg)
+                            .border(if (activeTab == 1) 1.dp else 0.dp, if (activeTab == 1) com.example.ui.theme.AccentGold else Color.Transparent, RoundedCornerShape(16.dp))
                             .clickable { activeTab = 1 }
                             .testTag("tab_staff"),
                         contentAlignment = Alignment.Center
@@ -269,7 +271,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             value = fanName,
                             onValueChange = { fanName = it; fanError = "" },
                             label = { Text("Full Name", color = Color.White, fontWeight = FontWeight.SemiBold) },
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = AccentLight) },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = com.example.ui.theme.AccentGold) },
                             singleLine = true,
                             placeholder = { Text("Enter your full name", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -293,7 +295,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             value = fanTicketId,
                             onValueChange = { fanTicketId = it; fanError = "" },
                             label = { Text("Ticket Reference Number", color = Color.White, fontWeight = FontWeight.SemiBold) },
-                            leadingIcon = { Icon(Icons.Default.ConfirmationNumber, contentDescription = null, tint = AccentLight) },
+                            leadingIcon = { Icon(Icons.Default.ConfirmationNumber, contentDescription = null, tint = com.example.ui.theme.AccentGold) },
                             singleLine = true,
                             placeholder = { Text("Enter ticket ref (e.g. WC-CDMX-402)", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -317,7 +319,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             value = fanSeat,
                             onValueChange = { fanSeat = it; fanError = "" },
                             label = { Text("Seat Block Number", color = Color.White, fontWeight = FontWeight.SemiBold) },
-                            leadingIcon = { Icon(Icons.Default.EventSeat, contentDescription = null, tint = AccentLight) },
+                            leadingIcon = { Icon(Icons.Default.EventSeat, contentDescription = null, tint = com.example.ui.theme.AccentGold) },
                             singleLine = true,
                             placeholder = { Text("Enter seat block (e.g. 104-B)", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -369,10 +371,10 @@ fun LoginScreen(viewModel: MainViewModel) {
                                     .fillMaxSize()
                                     .liquidGlass(
                                         shape = RoundedCornerShape(24.dp),
-                                        topBorderColor = AccentLight.copy(alpha = 0.5f),
-                                        bottomBorderColor = AccentDark.copy(alpha = 0.2f),
-                                        bgStartColor = AccentLight.copy(alpha = 0.4f),
-                                        bgEndColor = AccentDark.copy(alpha = 0.7f)
+                                        topBorderColor = com.example.ui.theme.AccentGold.copy(alpha = 0.8f),
+                                        bottomBorderColor = com.example.ui.theme.AccentGoldDark.copy(alpha = 0.4f),
+                                        bgStartColor = com.example.ui.theme.AccentGold.copy(alpha = 0.7f),
+                                        bgEndColor = com.example.ui.theme.AccentGoldDark.copy(alpha = 0.9f)
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -400,7 +402,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Icon(Icons.Default.Security, contentDescription = null, tint = AccentLight, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Security, contentDescription = null, tint = com.example.ui.theme.AccentGold, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 "Your information is secure and used only\nto personalize your stadium experience.",
@@ -436,7 +438,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             value = staffId,
                             onValueChange = { staffId = it; staffError = "" },
                             label = { Text("Operations ID", color = Color.White, fontWeight = FontWeight.SemiBold) },
-                            leadingIcon = { Icon(Icons.Default.Badge, contentDescription = null, tint = ColorAiPurple) },
+                            leadingIcon = { Icon(Icons.Default.Badge, contentDescription = null, tint = com.example.ui.theme.AccentGold) },
                             singleLine = true,
                             placeholder = { Text("Enter ID (e.g. STAFF-2026)", color = TextSecondary) },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -460,7 +462,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             value = staffPin,
                             onValueChange = { staffPin = it; staffError = "" },
                             label = { Text("Security Pin", color = Color.White, fontWeight = FontWeight.SemiBold) },
-                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ColorAiPurple) },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = com.example.ui.theme.AccentGold) },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -550,10 +552,10 @@ fun LoginScreen(viewModel: MainViewModel) {
                                     .fillMaxSize()
                                     .liquidGlass(
                                         shape = RoundedCornerShape(24.dp),
-                                        topBorderColor = ColorAiPurple.copy(alpha = 0.5f),
-                                        bottomBorderColor = ColorAiBlue.copy(alpha = 0.2f),
-                                        bgStartColor = ColorAiPurple.copy(alpha = 0.4f),
-                                        bgEndColor = ColorAiBlue.copy(alpha = 0.7f)
+                                        topBorderColor = com.example.ui.theme.AccentGold.copy(alpha = 0.8f),
+                                        bottomBorderColor = com.example.ui.theme.AccentGoldDark.copy(alpha = 0.4f),
+                                        bgStartColor = com.example.ui.theme.AccentGold.copy(alpha = 0.7f),
+                                        bgEndColor = com.example.ui.theme.AccentGoldDark.copy(alpha = 0.9f)
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -581,7 +583,7 @@ fun LoginScreen(viewModel: MainViewModel) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Icon(Icons.Default.Security, contentDescription = null, tint = ColorAiPurple, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Security, contentDescription = null, tint = com.example.ui.theme.AccentGold, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 "Your information is secure and used only\nto personalize your stadium experience.",
@@ -1177,7 +1179,7 @@ fun CustomLogo(modifier: Modifier = Modifier) {
         val center = Offset(size.width / 2, size.height / 2)
         
         drawCircle(
-            color = Color.White,
+            color = com.example.ui.theme.AccentGold,
             radius = radius * 0.9f,
             center = center,
             style = Stroke(width = (radius * 0.1f))
