@@ -80,38 +80,38 @@ fun DashboardScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 16.dp)
                     .height(260.dp)
+                    .liquidGlass(shape = RoundedCornerShape(24.dp))
             ) {
                 // Background Image
                 androidx.compose.foundation.Image(
                     painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.stadium_hero_1783434489967),
                     contentDescription = "Stadium",
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(24.dp))
                 )
                 
-                // Bottom Gradient Fade
+                // Subtle dark glass overlay to make texts pop perfectly
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Transparent, BgMain),
-                                startY = 0f,
-                                endY = Float.POSITIVE_INFINITY
-                            )
-                        )
+                        .background(Color.Black.copy(alpha = 0.45f))
                 )
 
                 // Match Header Overlaid
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally, 
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
+                        .fillMaxSize()
+                        .padding(24.dp)
                 ) {
                     Text("FIFA WORLD CUP 2026™", color = TextSecondary, fontSize = 12.sp, letterSpacing = 1.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                         Box(modifier = Modifier.size(40.dp).background(Color.White, RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
                             Text("🇲🇽", fontSize = 24.sp)
@@ -125,8 +125,8 @@ fun DashboardScreen(
                             Text("🇧🇷", fontSize = 24.sp)
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("${state.matchMinutes}'", color = ColorSafe, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("${state.matchMinutes}'", color = ColorSafe, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     Text("SECOND HALF", color = ColorAiBlue, fontSize = 10.sp, letterSpacing = 1.sp)
                 }
             }
