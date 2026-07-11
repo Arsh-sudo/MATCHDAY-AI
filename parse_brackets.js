@@ -1,16 +1,3 @@
 const fs = require('fs');
-const content = fs.readFileSync('app/src/main/java/com/example/ui/screens/MapScreen.kt', 'utf8');
-let depth = 0;
-const lines = content.split('\n');
-for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    for (let char of line) {
-        if (char === '{') depth++;
-        if (char === '}') depth--;
-    }
-    if (depth < 0) {
-        console.log('Negative depth at line ' + (i+1));
-        break;
-    }
-}
-console.log('Final depth: ' + depth);
+const content = fs.readFileSync('app/src/main/java/com/example/ui/MainApp.kt', 'utf8');
+console.log("File read successfully.");
