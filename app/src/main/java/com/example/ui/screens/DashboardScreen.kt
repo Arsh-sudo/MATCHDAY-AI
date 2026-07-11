@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Accessible
 import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.EnergySavingsLeaf
@@ -764,8 +765,8 @@ fun TelemetryCard(viewModel: MainViewModel) {
             Text(
                 text = "Show real-time readings from your device's built-in sensors instead of stadium simulations.",
                 color = TextSecondary,
-                fontSize = 14.sp,
-                lineHeight = 20.sp
+                fontSize = 16.sp,
+                lineHeight = 24.sp
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -805,29 +806,32 @@ fun TelemetryCard(viewModel: MainViewModel) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     TelemetryStatItem(
-                        title = "FAN CHEERING",
-                        value = if (hasAccelerometer) "$cheeringIndex%" else "Offline",
-                        subValue = if (!hasAccelerometer) "No Accelerometer" else if (cheeringIndex > 15) "SHAKING! 🎉" else "STABLE 💺",
+                        title = "Fan Cheering",
+                        value = if (hasAccelerometer) "$cheeringIndex" else "Offline",
+                        unit = if (hasAccelerometer) "dB" else "",
+                        subValue = if (!hasAccelerometer) "No Accelerometer" else if (cheeringIndex > 15) "High 📈" else "Stable 📉",
                         icon = Icons.Default.Sensors,
-                        iconColor = ColorAiPurple,
+                        iconColor = ColorAiBlue,
                         modifier = Modifier.weight(1f)
                     )
 
                     TelemetryStatItem(
-                        title = "ILLUM.",
-                        value = if (hasLightSensor) "${liveLightLux.toInt()} lx" else "Offline",
-                        subValue = if (!hasLightSensor) "No Light Sensor" else if (liveLightLux > 120) "BRIGHT 💡" else "DIM LIGHTS 🌑",
+                        title = "Illumination",
+                        value = if (hasLightSensor) "${liveLightLux.toInt()}" else "Offline",
+                        unit = if (hasLightSensor) "lx" else "",
+                        subValue = if (!hasLightSensor) "No Light Sensor" else if (liveLightLux > 120) "Optimal 📈" else "Low 📉",
                         icon = Icons.Default.WbSunny,
                         iconColor = Color(0xFFFBBF24),
                         modifier = Modifier.weight(1f)
                     )
 
                     TelemetryStatItem(
-                        title = "AZTECA ALT.",
-                        value = if (hasPressureSensor) "${livePressureHpa.toInt()} hPa" else "Offline",
-                        subValue = if (!hasPressureSensor) "No Barometer" else if (livePressureHpa < 850) "HIGH CDMX ALT ⛰️" else "STANDARD PRESS 🌊",
+                        title = "Azteca Alt.",
+                        value = if (hasPressureSensor) "${livePressureHpa.toInt()}" else "Offline",
+                        unit = if (hasPressureSensor) "hPa" else "",
+                        subValue = if (!hasPressureSensor) "No Barometer" else if (livePressureHpa < 850) "High 📈" else "Stable 📉",
                         icon = Icons.Default.Speed,
-                        iconColor = ColorAiBlue,
+                        iconColor = ColorAiPurple,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -840,8 +844,9 @@ fun TelemetryCard(viewModel: MainViewModel) {
 fun TelemetryStatItem(
     title: String,
     value: String,
+    unit: String = "",
     subValue: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
     iconColor: Color,
     modifier: Modifier = Modifier
 ) {
@@ -850,42 +855,52 @@ fun TelemetryStatItem(
             .height(108.dp)
             .liquidGlass(
                 shape = RoundedCornerShape(12.dp)
-            ),
-        contentAlignment = Alignment.Center
+            )
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = title,
-                color = TextSecondary,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp,
-                maxLines = 1
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (icon != null) {
+                    Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                }
+                Text(
+                    text = title,
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
             
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(16.dp))
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = value,
                     color = TextPrimary,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
+                if (unit.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(
+                        text = unit,
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(bottom = 3.dp)
+                    )
+                }
             }
             
             Text(
                 text = subValue,
                 color = if (value != "Offline") iconColor else TextSecondary,
-                fontSize = 8.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1
             )
         }
@@ -931,28 +946,31 @@ fun SustainabilityCard(state: com.example.viewmodel.DashboardState) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 TelemetryStatItem(
-                    title = "RENEWABLE ENERGY",
-                    value = "${state.renewableEnergyPct}%",
-                    subValue = "SOLAR ACTIVE",
-                    icon = Icons.Default.EnergySavingsLeaf,
+                    title = "Renewable Energy",
+                    value = "${state.renewableEnergyPct}",
+                    unit = "%",
+                    subValue = "Solar Active",
+                    icon = null,
                     iconColor = ColorSafe,
                     modifier = Modifier.weight(1f)
                 )
 
                 TelemetryStatItem(
-                    title = "WASTE DIVERSION",
-                    value = "${state.wasteDiversionPct}%",
-                    subValue = "COMPOST & RECYCLE",
-                    icon = Icons.Default.Recycling,
+                    title = "Waste Diversion",
+                    value = "♻️ ${state.wasteDiversionPct}",
+                    unit = "%",
+                    subValue = "Compost & Recycle",
+                    icon = null,
                     iconColor = ColorAiBlue,
                     modifier = Modifier.weight(1f)
                 )
 
                 TelemetryStatItem(
-                    title = "CARBON OFFSET",
-                    value = String.format("%.1ft", state.carbonOffsetTonnes),
-                    subValue = "TRANSIT SAVINGS",
-                    icon = Icons.Default.Co2,
+                    title = "Carbon Offset",
+                    value = String.format("%.1f", state.carbonOffsetTonnes),
+                    unit = "t",
+                    subValue = "CO₂ Saved",
+                    icon = null,
                     iconColor = ColorAiPurple,
                     modifier = Modifier.weight(1f)
                 )
