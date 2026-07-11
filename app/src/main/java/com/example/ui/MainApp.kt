@@ -31,6 +31,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -183,6 +188,9 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                     }
                 },
             bottomBar = {
+                val targetPositions = remember { mutableStateListOf(0f, 0f, 0f, 0f, 0f) }
+                val density = LocalDensity.current
+                
                 // Floating Navigation
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp), 
@@ -196,6 +204,29 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                             .background(BgMain.copy(alpha = 0.95f))
                             .border(1.dp, GlassBorder, RoundedCornerShape(42.dp))
                     ) {
+                        
+                        val pageFloat = (pagerState.currentPage + pagerState.currentPageOffsetFraction).coerceIn(0f, 4f)
+                        val index = pageFloat.toInt().coerceIn(0, 3)
+                        val fraction = pageFloat - index
+                        val currentX = targetPositions[index]
+                        val nextX = targetPositions[index + 1]
+                        val bubbleX = currentX + (nextX - currentX) * fraction
+                        
+                        if (targetPositions[0] != 0f) {
+                            Box(
+                                modifier = Modifier
+                                    .offset { 
+                                        IntOffset(
+                                            x = bubbleX.toInt() - with(density) { 24.dp.roundToPx() },
+                                            y = with(density) { (84.dp / 2 - 24.dp).roundToPx() }
+                                        ) 
+                                    }
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(ColorAiBlue.copy(alpha = 0.2f))
+                            )
+                        }
+
                         Row(
                             modifier = Modifier.fillMaxSize(),
                             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -208,7 +239,8 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                 onClick = { 
                                     showLiveFeeds = false
                                     coroutineScope.launch { pagerState.animateScrollToPage(0) }
-                                }
+                                },
+                                modifier = Modifier.onGloballyPositioned { targetPositions[0] = it.positionInParent().x + it.size.width / 2f }
                             )
                             BottomNavItem(
                                 icon = if(currentScreen == Screen.Stadium) Icons.Filled.Map else Icons.Outlined.Map,
@@ -217,11 +249,12 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                 onClick = { 
                                     showLiveFeeds = false
                                     coroutineScope.launch { pagerState.animateScrollToPage(1) }
-                                }
+                                },
+                                modifier = Modifier.onGloballyPositioned { targetPositions[1] = it.positionInParent().x + it.size.width / 2f }
                             )
                             
                             // Spacer for center button
-                            Spacer(modifier = Modifier.width(56.dp))
+                            Spacer(modifier = Modifier.width(56.dp).onGloballyPositioned { targetPositions[2] = it.positionInParent().x + it.size.width / 2f })
                             
                             BottomNavItem(
                                 icon = if(currentScreen == Screen.AICopilot) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubble,
@@ -230,7 +263,8 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                 onClick = { 
                                     showLiveFeeds = false
                                     coroutineScope.launch { pagerState.animateScrollToPage(3) }
-                                }
+                                },
+                                modifier = Modifier.onGloballyPositioned { targetPositions[3] = it.positionInParent().x + it.size.width / 2f }
                             )
                             BottomNavItem(
                                 icon = if(currentScreen == Screen.Alerts) Icons.Filled.Notifications else Icons.Outlined.Notifications,
@@ -239,7 +273,8 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
                                 onClick = { 
                                     showLiveFeeds = false
                                     coroutineScope.launch { pagerState.animateScrollToPage(4) }
-                                }
+                                },
+                                modifier = Modifier.onGloballyPositioned { targetPositions[4] = it.positionInParent().x + it.size.width / 2f }
                             )
                         }
                     }
@@ -329,10 +364,10 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
 }
 
 @Composable
-fun BottomNavItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, isSelected: Boolean, onClick: () -> Unit) {
+fun BottomNavItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(
+        modifier = modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
             onClick = onClick
